@@ -1,14 +1,20 @@
 package productionoverseer;
 
+import java.util.List;
+
 public class Operator {
 
 	public static void main(String... args) {
         
         EIMMTLink connection = new EIMMTLink();
         
-        connection.queryHASPOrders("3605982", "07212023");
+        List<HASPOrder> orders = connection.queryHASPOrders("3605982", "07242023");
         
-       // connection.close();
+        for (HASPOrder order : orders) {
+        	connection.hydrateHASPOrder(order);
+        }
+        
+        connection.close();
         
 	}
 
