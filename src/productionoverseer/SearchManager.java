@@ -5,9 +5,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SearchManager {
-	
+
 	private List<FileSearch> searches;
 	private List<Thread> threads;
 
@@ -18,31 +19,27 @@ public class SearchManager {
 		}
 		return Pattern.compile(mask.substring(1));
 	}
-	
+
 	public void start() {
 		for (Thread thread : threads) {
 			thread.start();
 		}
 	}
-	
+
 	public void join() throws InterruptedException {
 		for (Thread thread : threads) {
 			thread.join();
 		}
 	}
-	
+
 	public List<Path> getResults() {
-		List<Path> results = new ArrayList<Path>();
-		for (FileSearch search : searches) {
-			results.addAll(search.dump());
-		}
-		return results;
+		return searches.stream().map(FileSearch::dump).flatMap(List::stream).collect(Collectors.toList());
 	}
-	
+
 	SearchManager(List<String> roots, List<HASPOrder> orders) {
 		searches = new ArrayList<FileSearch>();
 		threads = new ArrayList<Thread>();
-		
+
 		Pattern pattern = SearchManager.compileSearchMask(orders);
 		for (String root : roots) {
 			FileSearch search = new FileSearch(pattern, Paths.get(root));

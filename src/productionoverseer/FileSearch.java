@@ -13,7 +13,7 @@ public class FileSearch implements Runnable {
 
 	private final Pattern pattern;
 	private final Path root;
-	
+
 	private List<Path> results;
 
 	@Override

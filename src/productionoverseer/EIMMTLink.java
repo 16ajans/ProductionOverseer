@@ -122,13 +122,13 @@ public class EIMMTLink {
 
 		final HASPOrder o1;
 		final HASPOrder o2;
-		
+
 		public FoundDuplicateOrderException(HASPOrder o1, HASPOrder o2) {
 			super("Found duplicate HASP Order in EIMMT.");
 			this.o1 = o1;
 			this.o2 = o2;
 		}
-		
+
 		public void printOrderIds() {
 			System.out.println("Duplicates: " + o1.orderId + " and " + o2.orderId);
 		}

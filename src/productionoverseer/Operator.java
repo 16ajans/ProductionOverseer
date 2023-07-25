@@ -3,6 +3,7 @@ package productionoverseer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import productionoverseer.EIMMTLink.FoundDuplicateOrderException;
 
@@ -23,14 +24,14 @@ public class Operator {
 		SearchManager searchManager = new SearchManager(roots, orders);
 		searchManager.start();
 
-		for (HASPOrder order : orders) {
+		orders.stream().forEach(order -> {
 			try {
 				eimmtLink.hydrateHASPOrder(order);
 			} catch (FoundDuplicateOrderException e) {
 				e.printStackTrace();
 				e.printOrderIds();
 			}
-		}
+		});
 
 		eimmtLink.close();
 
@@ -42,10 +43,13 @@ public class Operator {
 
 		List<Path> searchResults = searchManager.getResults();
 
+		List<BundledOrder> bundledOrders = orders.stream()
+				.map(order -> new BundledOrder(order, null, Validator.matchFiles(order, searchResults)))
+				.collect(Collectors.toList());
+
 		try {
 			ExcelLink.export(excelDest, orders);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
