@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,7 +19,12 @@ public class ExcelLink {
 			"priority", "media", "convVendor", "orderComments", "orderDateTime", "customerRequestDateTime",
 			"orderDeskFtpHapDateTime", "cancelledDateTime", "vendorProcessDateTime", "hapPdtCompletedDateTime");
 
-	public static void export(String path, List<HASPOrder> orders) throws IOException {
+	public static void export(String path, List<BundledOrder> bundledOrders) throws IOException {
+		// TODO unfurl
+		List<HASPOrder> orders = bundledOrders.stream()
+									.map(bundle -> bundle.order)
+									.collect(Collectors.toList());
+		
 		XSSFWorkbook wb = new XSSFWorkbook();
 		Sheet sh = wb.createSheet("HO Records");
 		ExcelLink.insertHeaders(sh, headers);

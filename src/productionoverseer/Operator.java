@@ -48,7 +48,7 @@ public class Operator {
 				.collect(Collectors.toList());
 
 		try {
-			ExcelLink.export(excelDest, orders);
+			ExcelLink.export(excelDest, bundledOrders);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
