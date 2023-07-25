@@ -7,25 +7,31 @@ import productionoverseer.EIMMTLink.FoundDuplicateOrderException;
 
 public class Operator {
 
-	public static void main(String... args) throws IOException, InterruptedException {
-        String inquiryDate = "07252023";
-		
-        EIMMTLink connection = new EIMMTLink();
-        
-        List<HASPOrder> orders = connection.queryHASPOrders(null, inquiryDate);
-        
-        for (HASPOrder order : orders) {
-        	try {
-				connection.hydrateHASPOrder(order);
+	public static void main(String... args) {
+		String inquiryDate = "07242023";
+		String ordDeskUser = null;
+		String excelDest = "C:/temp/" + inquiryDate + ".xlsx";
+
+		EIMMTLink eimmtLink = new EIMMTLink();
+
+		List<HASPOrder> orders = eimmtLink.queryHASPOrders(ordDeskUser, inquiryDate);
+
+		for (HASPOrder order : orders) {
+			try {
+				eimmtLink.hydrateHASPOrder(order);
 			} catch (FoundDuplicateOrderException e) {
 				e.printStackTrace();
 			}
-        }
-        
-        connection.close();
-        
-        ExcelLink.export("C:/temp/" + inquiryDate + ".xlsx", orders);
-        
+		}
+
+		eimmtLink.close();
+
+		try {
+			ExcelLink.export(excelDest, orders);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

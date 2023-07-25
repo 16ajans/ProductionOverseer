@@ -13,25 +13,25 @@ import org.jsoup.nodes.Element;
 public class HASPOrder {
 
 	static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm");
-	
+
 	Boolean hydrated;
-	
+
 	String uri;
 	String orderId;
-	
+
 	String drawingNumber;
 	String sheetId;
 	String revision;
 	String disclosureValue;
 	String airplaneModel;
-	
+
 	String suppCode;
 	String suppName;
 	String custBemsid;
 	String custName;
 	String deliverTo;
 	String buLocDept;
-	
+
 	String ordDeskUser;
 	String ordDeskUserName;
 	String siteRequesting;
@@ -40,16 +40,16 @@ public class HASPOrder {
 	String priority;
 	String media;
 	String convVendor;
-	
+
 	String orderComments;
-	
+
 	LocalDateTime order;
 	LocalDateTime customerRequest;
 	LocalDateTime orderDeskFtpHap;
 	LocalDateTime cancelled;
 	LocalDateTime vendorProcess;
 	LocalDateTime hapPdtCompleted;
-	
+
 	HASPOrder(String uri, String orderId, String drawingNumber, String sheetId) {
 		this.uri = "https://eimmt.web.boeing.com/eimmt-web/app/" + uri;
 		this.orderId = orderId;
@@ -57,10 +57,10 @@ public class HASPOrder {
 		this.sheetId = sheetId;
 		hydrated = false;
 	}
-	
+
 	public void hydrate(String orderData) {
 		Document orderDoc = Jsoup.parseBodyFragment(orderData);
-		
+
 		Element drawingAttributes = orderDoc.getElementById("drawingAttributes");
 		revision = drawingAttributes.getElementById("revision").text();
 		disclosureValue = drawingAttributes.getElementById("disclosureValue").text();
@@ -85,7 +85,7 @@ public class HASPOrder {
 		}
 		deliverTo = suppParameters.getElementById("deliverTo").text();
 		buLocDept = suppParameters.getElementById("buLocDept").text();
-		
+
 		Element orderParameters = orderDoc.getElementById("orderParameters");
 		String[] ordDeskUserInfo = orderParameters.getElementById("ordDeskUser").text().split("-");
 		ordDeskUser = ordDeskUserInfo[0].strip();
@@ -96,7 +96,7 @@ public class HASPOrder {
 		priority = orderParameters.getElementById("priority").text();
 		media = orderParameters.getElementById("media").text();
 		convVendor = orderParameters.getElementById("convVendor").text();
-		
+
 		orderComments = orderParameters.getElementById("orderComments").text();
 
 		order = tryDateTime(orderParameters, "order");
@@ -105,20 +105,19 @@ public class HASPOrder {
 		cancelled = tryDateTime(orderParameters, "cancelled");
 		vendorProcess = tryDateTime(orderParameters, "vendorProcess");
 		hapPdtCompleted = tryDateTime(orderParameters, "hapPdtCompleted");
-		
+
 		hydrated = true;
 	}
-	
+
 	public List<String> toList() {
-		
-		
-		
-		return Arrays.asList(orderId, drawingNumber, sheetId, revision, disclosureValue, airplaneModel,
-				suppCode, suppName, custBemsid, custName, deliverTo, buLocDept, ordDeskUser, ordDeskUserName, siteRequesting, sitePerformingLoc, otherSys, priority, media, convVendor,
-				orderComments,
-				tryDateTime(order), tryDateTime(customerRequest), tryDateTime(orderDeskFtpHap), tryDateTime(cancelled), tryDateTime(vendorProcess), tryDateTime(hapPdtCompleted));
+
+		return Arrays.asList(orderId, drawingNumber, sheetId, revision, disclosureValue, airplaneModel, suppCode,
+				suppName, custBemsid, custName, deliverTo, buLocDept, ordDeskUser, ordDeskUserName, siteRequesting,
+				sitePerformingLoc, otherSys, priority, media, convVendor, orderComments, tryDateTime(order),
+				tryDateTime(customerRequest), tryDateTime(orderDeskFtpHap), tryDateTime(cancelled),
+				tryDateTime(vendorProcess), tryDateTime(hapPdtCompleted));
 	}
-	
+
 	private static LocalDateTime tryDateTime(Element parent, String baseId) {
 		try {
 			String date = parent.getElementById(baseId + "Date").text();
@@ -127,16 +126,16 @@ public class HASPOrder {
 		} catch (DateTimeParseException e) {
 			return null;
 		}
-		
+
 	}
-	
+
 	private static String tryDateTime(LocalDateTime dateTime) {
 		try {
 			return dateTime.format(formatter);
 		} catch (NullPointerException e) {
 			return "";
 		}
-		
+
 	}
 
 }
