@@ -105,7 +105,7 @@ public class EIMMTLink {
 			if (lastOrder.cancelled != null && lastOrder.drawingNumber == order.drawingNumber
 					&& lastOrder.sheetId == order.sheetId) {
 				if (driver.findElement(By.id("otherSys")).getText() == lastOrder.otherSys) {
-					throw new FoundDuplicateOrderException("Found duplicate EIMMT order!");
+					throw new FoundDuplicateOrderException(lastOrder, order);
 				}
 			}
 		}
@@ -118,13 +118,19 @@ public class EIMMTLink {
 
 	public class FoundDuplicateOrderException extends Exception {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -1261435400048557674L;
 
-		public FoundDuplicateOrderException(String message) {
-			super(message);
+		final HASPOrder o1;
+		final HASPOrder o2;
+		
+		public FoundDuplicateOrderException(HASPOrder o1, HASPOrder o2) {
+			super("Found duplicate HASP Order in EIMMT.");
+			this.o1 = o1;
+			this.o2 = o2;
+		}
+		
+		public void printOrderIds() {
+			System.out.println("Duplicates: " + o1.orderId + " and " + o2.orderId);
 		}
 	}
 

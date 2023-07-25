@@ -12,7 +12,8 @@ import java.util.stream.Stream;
 public class FileSearch implements Runnable {
 
 	private final Pattern pattern;
-	private Path root;
+	private final Path root;
+	
 	private List<Path> results;
 
 	@Override
@@ -35,8 +36,8 @@ public class FileSearch implements Runnable {
 		return results;
 	}
 
-	FileSearch(String prepattern, Path root) {
-		pattern = Pattern.compile(prepattern);
+	FileSearch(Pattern pattern, Path root) {
+		this.pattern = pattern;
 		this.root = root;
 	}
 
