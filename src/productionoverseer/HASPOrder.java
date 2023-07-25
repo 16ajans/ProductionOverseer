@@ -3,6 +3,8 @@ package productionoverseer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,8 +12,9 @@ import org.jsoup.nodes.Element;
 
 public class HASPOrder {
 
+	static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm");
+	
 	Boolean hydrated;
-	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyyHH:mm");
 	
 	String uri;
 	String orderId;
@@ -47,9 +50,11 @@ public class HASPOrder {
 	LocalDateTime vendorProcess;
 	LocalDateTime hapPdtCompleted;
 	
-	HASPOrder(String uri, String orderId) {
+	HASPOrder(String uri, String orderId, String drawingNumber, String sheetId) {
 		this.uri = "https://eimmt.web.boeing.com/eimmt-web/app/" + uri;
 		this.orderId = orderId;
+		this.drawingNumber = drawingNumber;
+		this.sheetId = sheetId;
 		hydrated = false;
 	}
 	
@@ -57,8 +62,6 @@ public class HASPOrder {
 		Document orderDoc = Jsoup.parseBodyFragment(orderData);
 		
 		Element drawingAttributes = orderDoc.getElementById("drawingAttributes");
-		drawingNumber = drawingAttributes.getElementById("drawingNumber").text();
-		sheetId = drawingAttributes.getElementById("sheetId").text();
 		revision = drawingAttributes.getElementById("revision").text();
 		disclosureValue = drawingAttributes.getElementById("disclosureValue").text();
 		airplaneModel = drawingAttributes.getElementById("airplaneModel").text();
@@ -106,17 +109,32 @@ public class HASPOrder {
 		hydrated = true;
 	}
 	
-//	public List<String> toList() {
-//		return new ArrayList<String>();
-//	}
+	public List<String> toList() {
+		
+		
+		
+		return Arrays.asList(orderId, drawingNumber, sheetId, revision, disclosureValue, airplaneModel,
+				suppCode, suppName, custBemsid, custName, deliverTo, buLocDept, ordDeskUser, ordDeskUserName, siteRequesting, sitePerformingLoc, otherSys, priority, media, convVendor,
+				orderComments,
+				tryDateTime(order), tryDateTime(customerRequest), tryDateTime(orderDeskFtpHap), tryDateTime(cancelled), tryDateTime(vendorProcess), tryDateTime(hapPdtCompleted));
+	}
 	
-	private LocalDateTime tryDateTime(Element parent, String baseId) {
+	private static LocalDateTime tryDateTime(Element parent, String baseId) {
 		try {
 			String date = parent.getElementById(baseId + "Date").text();
 			String time = parent.getElementById(baseId + "Time").text();
-			return LocalDateTime.parse(date + time, formatter);
+			return LocalDateTime.parse(String.join(" ", date, time), formatter);
 		} catch (DateTimeParseException e) {
 			return null;
+		}
+		
+	}
+	
+	private static String tryDateTime(LocalDateTime dateTime) {
+		try {
+			return dateTime.format(formatter);
+		} catch (NullPointerException e) {
+			return "";
 		}
 		
 	}
