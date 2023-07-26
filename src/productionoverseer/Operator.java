@@ -11,7 +11,7 @@ public class Operator {
 
 	public static void main(String... args) {
 		String inquiryDate = "07262023";
-		String ordDeskUser = "3605982";
+		String ordDeskUser = null;
 		String excelDest = "C:/temp/" + inquiryDate + ".xlsx";
 		String hapShareLetter = "T:/";
 
@@ -48,7 +48,7 @@ public class Operator {
 		List<Path> searchResults = searchManager.getResults();
 
 		List<BundledOrder> bundledOrders = orders.parallelStream()
-				.map(order -> Validator.bundle(order, null, searchResults))
+				.map(order -> Validator.bundle(order, searchResults))
 				.collect(Collectors.toList());
 
 		try {

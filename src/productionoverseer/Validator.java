@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public class Validator {
 
-	public static BundledOrder bundle(HASPOrder order, List<HAPRequest> requests, List<Path> allFiles) {
+	public static BundledOrder bundle(HASPOrder order, List<Path> allFiles) {
 		List<Path> matchingFiles = allFiles.parallelStream()
 				.filter(path -> path.toString().contains(order.orderId.substring(2))).collect(Collectors.toList());
 		List<Path> orderReportFiles = matchingFiles.parallelStream()
@@ -16,6 +16,6 @@ public class Validator {
 				.filter(path -> path.toString().toLowerCase().endsWith("cgm") || path.toString().toLowerCase().endsWith("tif"))
 				.collect(Collectors.toList());
 
-		return new BundledOrder(order, requests, orderReportFiles, drawingFiles);
+		return new BundledOrder(order, orderReportFiles, drawingFiles);
 	}
 }

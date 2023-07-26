@@ -2,18 +2,17 @@ package productionoverseer;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BundledOrder {
 
 	HASPOrder order;
-	List<HAPRequest> requests;
 	
 	List<Path> orderReportFiles;
 	List<Path> drawingFiles;
 
-	BundledOrder(HASPOrder order, List<HAPRequest> requests, List<Path> orderReportFiles, List<Path> drawingFiles) {
+	BundledOrder(HASPOrder order, List<Path> orderReportFiles, List<Path> drawingFiles) {
 		this.order = order;
-		this.requests = requests;
 		this.orderReportFiles = orderReportFiles;
 		this.drawingFiles = drawingFiles;
 	}
@@ -22,12 +21,16 @@ public class BundledOrder {
 		return order;
 	}
 	
-	List<Path> getOrderReportFiles() {
-		return orderReportFiles;
+	List<String> getOrderReportFiles() {
+		return orderReportFiles.stream()
+				.map(path -> path.toString().substring(3))
+				.collect(Collectors.toList());
 	}
 	
-	List<Path> getDrawingFiles() {
-		return drawingFiles;
+	List<String> getDrawingFiles() {
+		return drawingFiles.stream()
+				.map(path -> path.toString().substring(3))
+				.collect(Collectors.toList());
 	}
 	
 }

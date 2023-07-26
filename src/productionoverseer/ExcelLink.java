@@ -65,12 +65,19 @@ public class ExcelLink {
 			
 			Cell orderReportCell = row.createCell(j++);
 			Cell drawingFileCell = row.createCell(j++);
-			orderReportCell.setCellValue(bundle.getOrderReportFiles().toString());
-			drawingFileCell.setCellValue(bundle.getDrawingFiles().toString());
+			String orderReportFiles = bundle.getOrderReportFiles().toString();
+			String drawingFiles = bundle.getDrawingFiles().toString();
+
+			orderReportCell.setCellValue(orderReportFiles.substring(1, orderReportFiles.length() - 1));
+			drawingFileCell.setCellValue(drawingFiles.substring(1, drawingFiles.length() - 1));
 
 			i++;
 		}
 		System.out.println("Created " + (i - 1) + " rows.");
+		
+		for(int k = 0; k < headers.size(); k++) {
+			sh.autoSizeColumn(k);
+		}
 
 		FileOutputStream out = new FileOutputStream(path);
 
