@@ -10,12 +10,16 @@ import productionoverseer.EIMMTLink.FoundDuplicateOrderException;
 public class Operator {
 
 	public static void main(String... args) {
-		String inquiryDate = "07252023";
+		String inquiryDate = "07262023";
 		String ordDeskUser = "3605982";
 		String excelDest = "C:/temp/" + inquiryDate + ".xlsx";
-		List<String> roots = List.of("T:/Auburn/Retained", "T:/Auburn/Request", "T:/Auburn/CGM", "T:/Auburn/TIFF",
-				"T:/Everett/Retained", "T:/Everett/Request", "T:/Everett/CGM", "T:/Everett/TIFF",
-				"T:/St_Louis/Retained", "T:/St_Louis/Request", "T:/St_Louis/CGM", "T:/St_Louis/TIFF");
+		String hapShareLetter = "T:/";
+
+		List<String> roots = List
+				.of("Auburn/Retained", "Auburn/Request", "Auburn/CGM", "Auburn/TIFF", "Everett/Retained",
+						"Everett/Request", "Everett/CGM", "Everett/TIFF", "St_Louis/Retained", "St_Louis/Request",
+						"St_Louis/CGM", "St_Louis/TIFF")
+				.parallelStream().map(dir -> hapShareLetter + dir).collect(Collectors.toList());
 
 		EIMMTLink eimmtLink = new EIMMTLink();
 
@@ -43,8 +47,8 @@ public class Operator {
 
 		List<Path> searchResults = searchManager.getResults();
 
-		List<BundledOrder> bundledOrders = orders.stream()
-				.map(order -> new BundledOrder(order, null, Validator.matchFiles(order, searchResults)))
+		List<BundledOrder> bundledOrders = orders.parallelStream()
+				.map(order -> Validator.bundle(order, null, searchResults))
 				.collect(Collectors.toList());
 
 		try {

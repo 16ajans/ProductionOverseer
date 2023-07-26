@@ -6,8 +6,16 @@ import java.util.stream.Collectors;
 
 public class Validator {
 
-	public static List<Path> matchFiles(HASPOrder order, List<Path> allFiles) {
-		return allFiles.stream().filter(path -> path.toString().contains(order.orderId.substring(2)))
+	public static BundledOrder bundle(HASPOrder order, List<HAPRequest> requests, List<Path> allFiles) {
+		List<Path> matchingFiles = allFiles.parallelStream()
+				.filter(path -> path.toString().contains(order.orderId.substring(2))).collect(Collectors.toList());
+		List<Path> orderReportFiles = matchingFiles.parallelStream()
+				.filter(path -> path.toString().toLowerCase().endsWith("txt") || path.toString().toLowerCase().endsWith("pdf"))
 				.collect(Collectors.toList());
+		List<Path> drawingFiles = matchingFiles.parallelStream()
+				.filter(path -> path.toString().toLowerCase().endsWith("cgm") || path.toString().toLowerCase().endsWith("tif"))
+				.collect(Collectors.toList());
+
+		return new BundledOrder(order, requests, orderReportFiles, drawingFiles);
 	}
 }

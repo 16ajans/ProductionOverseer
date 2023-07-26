@@ -109,13 +109,16 @@ public class HASPOrder {
 		hydrated = true;
 	}
 
-	public List<String> toList() {
+	public List<String> listAttribs() {
 
 		return Arrays.asList(orderId, drawingNumber, sheetId, revision, disclosureValue, airplaneModel, suppCode,
 				suppName, custBemsid, custName, deliverTo, buLocDept, ordDeskUser, ordDeskUserName, siteRequesting,
-				sitePerformingLoc, otherSys, priority, media, convVendor, orderComments, tryDateTime(order),
-				tryDateTime(customerRequest), tryDateTime(orderDeskFtpHap), tryDateTime(cancelled),
-				tryDateTime(vendorProcess), tryDateTime(hapPdtCompleted));
+				sitePerformingLoc, otherSys, priority, media, convVendor, orderComments);
+	}
+
+	public List<LocalDateTime> listDates() {
+
+		return Arrays.asList(order, customerRequest, orderDeskFtpHap, cancelled, vendorProcess, hapPdtCompleted);
 	}
 
 	private static LocalDateTime tryDateTime(Element parent, String baseId) {
@@ -125,15 +128,6 @@ public class HASPOrder {
 			return LocalDateTime.parse(String.join(" ", date, time), formatter);
 		} catch (DateTimeParseException e) {
 			return null;
-		}
-
-	}
-
-	private static String tryDateTime(LocalDateTime dateTime) {
-		try {
-			return dateTime.format(formatter);
-		} catch (NullPointerException e) {
-			return "";
 		}
 
 	}

@@ -7,12 +7,27 @@ public class BundledOrder {
 
 	HASPOrder order;
 	List<HAPRequest> requests;
-	List<Path> foundFiles;
+	
+	List<Path> orderReportFiles;
+	List<Path> drawingFiles;
 
-	BundledOrder(HASPOrder order, List<HAPRequest> requests, List<Path> foundFiles) {
+	BundledOrder(HASPOrder order, List<HAPRequest> requests, List<Path> orderReportFiles, List<Path> drawingFiles) {
 		this.order = order;
 		this.requests = requests;
-		this.foundFiles = foundFiles;
+		this.orderReportFiles = orderReportFiles;
+		this.drawingFiles = drawingFiles;
 	}
-
+	
+	HASPOrder getOrder() {
+		return order;
+	}
+	
+	List<Path> getOrderReportFiles() {
+		return orderReportFiles;
+	}
+	
+	List<Path> getDrawingFiles() {
+		return drawingFiles;
+	}
+	
 }

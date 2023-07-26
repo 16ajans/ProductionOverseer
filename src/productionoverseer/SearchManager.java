@@ -33,7 +33,7 @@ public class SearchManager {
 	}
 
 	public List<Path> getResults() {
-		return searches.stream().map(FileSearch::dump).flatMap(List::stream).collect(Collectors.toList());
+		return searches.parallelStream().map(FileSearch::dump).flatMap(List::stream).collect(Collectors.toList());
 	}
 
 	SearchManager(List<String> roots, List<HASPOrder> orders) {
