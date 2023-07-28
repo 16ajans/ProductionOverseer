@@ -10,9 +10,10 @@ import productionoverseer.EIMMTLink.FoundDuplicateOrderException;
 public class Operator {
 
 	public static void main(String... args) {
-		String inquiryDate = "07262023";
-		String ordDeskUser = null;
-		String excelDest = "C:/temp/" + inquiryDate + ".xlsx";
+		String dateFrom = "07282023";
+		String dateTo = null;
+		String ordDeskUser = "3605982";
+		String excelDest = "C:/temp/" + dateFrom + ".xlsx";
 		String hapShareLetter = "T:/";
 
 		List<String> roots = List
@@ -23,7 +24,7 @@ public class Operator {
 
 		EIMMTLink eimmtLink = new EIMMTLink();
 
-		List<HASPOrder> orders = eimmtLink.queryHASPOrders(ordDeskUser, inquiryDate);
+		List<HASPOrder> orders = eimmtLink.queryHASPOrders(ordDeskUser, dateFrom, dateTo);
 
 		SearchManager searchManager = new SearchManager(roots, orders);
 		searchManager.start();

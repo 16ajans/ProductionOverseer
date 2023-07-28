@@ -25,7 +25,7 @@ public class EIMMTLink {
 
 	EIMMTLink() {
 		FirefoxOptions options = new FirefoxOptions();
-		options.addArguments("-headless");
+		// options.addArguments("-headless");
 
 		FirefoxDriverService service = new GeckoDriverService.Builder().withLogOutput(System.out).build();
 
@@ -33,7 +33,7 @@ public class EIMMTLink {
 		System.out.println("Browser started.");
 		driver.get("https://eimmt.web.boeing.com/eimmt-web/app/");
 
-		new WebDriverWait(driver, Duration.ofSeconds(30))
+		new WebDriverWait(driver, Duration.ofSeconds(90))
 				.until(ExpectedConditions.elementToBeClickable(By.id("menuHaspInquireLink")));
 
 		System.out.println("Passed authentication.");
@@ -45,7 +45,7 @@ public class EIMMTLink {
 		System.out.println("Browser closed.");
 	}
 
-	public List<HASPOrder> queryHASPOrders(String ordDeskUser, String orderDateTime) {
+	public List<HASPOrder> queryHASPOrders(String ordDeskUser, String orderDateTimeFrom, String orderDateTimeTo) {
 
 		String xpath;
 		String uri;
@@ -61,14 +61,19 @@ public class EIMMTLink {
 		new WebDriverWait(driver, Duration.ofSeconds(3))
 				.until(ExpectedConditions.presenceOfElementLocated(By.id("searchResult")));
 
-		driver.findElement(By.id("addParamSelectComboboxInput")).sendKeys("Order Date Time");
-		driver.findElement(By.id("addCriteriaBtn")).click();
-		driver.findElement(By.id("{{cr.id + '_1'}}Date")).sendKeys(orderDateTime);
-		if (ordDeskUser == null) {
-			driver.findElement(By.id("addParamSelectComboboxInput")).sendKeys("SITE Requesting");
+		if (orderDateTimeFrom != null || orderDateTimeTo != null) {
+			driver.findElement(By.id("addParamSelectComboboxInput")).sendKeys("Order Date Time");
 			driver.findElement(By.id("addCriteriaBtn")).click();
-			driver.findElement(By.id("siteRequesting")).sendKeys("KENT");
 		}
+		if (orderDateTimeFrom != null) {
+			driver.findElement(By.id("{{cr.id + '_1'}}Date")).sendKeys(orderDateTimeFrom);
+		}
+		if (orderDateTimeTo != null) {
+			driver.findElement(By.id("{{cr.id + '_2'}}Date")).sendKeys(orderDateTimeTo);
+		}
+		driver.findElement(By.id("addParamSelectComboboxInput")).sendKeys("SITE Requesting");
+		driver.findElement(By.id("addCriteriaBtn")).click();
+		driver.findElement(By.id("siteRequesting")).sendKeys("KENT");
 
 		driver.findElement(By.id("submit")).click();
 		new WebDriverWait(driver, Duration.ofSeconds(3))
