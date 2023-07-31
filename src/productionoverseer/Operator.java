@@ -53,7 +53,7 @@ public class Operator {
 
 		List<Path> searchResults = searchManager.getResults();
 
-		List<BundledOrder> bundledOrders = orders.parallelStream().map(order -> Validator.bundle(order, searchResults))
+		List<BundledOrder> bundledOrders = orders.parallelStream().map(order -> new BundledOrder(order, searchResults))
 				.collect(Collectors.toList());
 
 		try {
