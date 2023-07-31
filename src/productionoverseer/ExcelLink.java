@@ -19,29 +19,30 @@ public class ExcelLink {
 			"disclosureValue", "airplaneModel", "suppCode", "suppName", "custBemsid", "custName", "deliverTo",
 			"buLocDept", "ordDeskUser", "ordDeskUserName", "siteRequesting", "sitePerformingLoc", "otherSys",
 			"priority", "media", "convVendor", "orderComments", "orderDateTime", "customerRequestDateTime",
-			"orderDeskFtpHapDateTime", "cancelledDateTime", "vendorProcessDateTime", "hapPdtCompletedDateTime", "orderReportFiles", "drawingFiles");
-	
+			"orderDeskFtpHapDateTime", "cancelledDateTime", "vendorProcessDateTime", "hapPdtCompletedDateTime",
+			"orderReportFiles", "drawingFiles");
+
 	public static void export(String path, List<BundledOrder> bundledOrders) throws IOException {
-		
+
 		XSSFWorkbook wb = new XSSFWorkbook();
 		Sheet sh = wb.createSheet("HO Records");
 		ExcelLink.insertHeaders(sh, headers);
-		
+
 		DataFormat format = wb.createDataFormat();
 		CellStyle style;
 
 		int i = 1;
 		for (BundledOrder bundle : bundledOrders) {
-			
+
 			HASPOrder order = bundle.getOrder();
-			
+
 			Row row = sh.createRow(i);
-			
+
 			List<String> orderData = order.listAttribs();
 			List<LocalDateTime> orderDates = order.listDates();
-			
+
 			int j = 0;
-			
+
 			for (String data : orderData) {
 				Cell cell = row.createCell(j);
 				try {
@@ -52,7 +53,7 @@ public class ExcelLink {
 
 				j++;
 			}
-			
+
 			style = wb.createCellStyle();
 			style.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
 			for (LocalDateTime date : orderDates) {
@@ -62,7 +63,7 @@ public class ExcelLink {
 
 				j++;
 			}
-			
+
 			Cell orderReportCell = row.createCell(j++);
 			Cell drawingFileCell = row.createCell(j++);
 			String orderReportFiles = bundle.getOrderReportFiles().toString();
@@ -74,8 +75,8 @@ public class ExcelLink {
 			i++;
 		}
 		System.out.println("Created " + (i - 1) + " rows.");
-		
-		for(int k = 0; k < headers.size(); k++) {
+
+		for (int k = 0; k < headers.size(); k++) {
 			sh.autoSizeColumn(k);
 		}
 

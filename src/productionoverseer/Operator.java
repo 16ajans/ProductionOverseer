@@ -14,7 +14,7 @@ public class Operator {
 	public static void main(String... args) {
 		LocalDate today = LocalDate.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddyyyy");
-		
+
 		String dateFrom = formatter.format(today);
 		String dateTo = null;
 		String ordDeskUser = "3605982";
@@ -53,8 +53,7 @@ public class Operator {
 
 		List<Path> searchResults = searchManager.getResults();
 
-		List<BundledOrder> bundledOrders = orders.parallelStream()
-				.map(order -> Validator.bundle(order, searchResults))
+		List<BundledOrder> bundledOrders = orders.parallelStream().map(order -> Validator.bundle(order, searchResults))
 				.collect(Collectors.toList());
 
 		try {
