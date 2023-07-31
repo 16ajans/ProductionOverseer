@@ -2,6 +2,8 @@ package productionoverseer;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,7 +12,10 @@ import productionoverseer.EIMMTLink.FoundDuplicateOrderException;
 public class Operator {
 
 	public static void main(String... args) {
-		String dateFrom = "07282023";
+		LocalDate today = LocalDate.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddyyyy");
+		
+		String dateFrom = formatter.format(today);
 		String dateTo = null;
 		String ordDeskUser = "3605982";
 		String excelDest = "C:/temp/" + dateFrom + ".xlsx";
