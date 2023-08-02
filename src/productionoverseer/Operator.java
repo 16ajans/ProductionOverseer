@@ -3,6 +3,7 @@ package productionoverseer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,12 +16,13 @@ public class Operator {
 		for (String arg : args) System.out.println(arg);
 		
 		LocalDate today = LocalDate.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddyyyy");
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMddyyyy");
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmm");
 
-		String dateFrom = formatter.format(today);
+		String dateFrom = dateFormatter.format(today);
 		String dateTo = null;
 		String ordDeskUser = "3605982";
-		String excelDest = "C:/temp/" + dateFrom + ".xlsx";
+		String excelDest = "C:/temp/" + dateFrom + "_THRU_" + timeFormatter.format(LocalDateTime.now()) + ".xlsx";
 		String hapShare = "//Mw/wch-mil/PEDS_HAP_SHARE/";
 
 		List<String> roots = List
@@ -60,6 +62,13 @@ public class Operator {
 
 		try {
 			ExcelLink.export(excelDest, bundledOrders);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			Runtime.getRuntime().exec("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"" + excelDest + "\"");
+			System.out.println("Opening report . . .");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
