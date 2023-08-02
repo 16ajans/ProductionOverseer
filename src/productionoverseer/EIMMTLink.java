@@ -25,7 +25,7 @@ public class EIMMTLink {
 
 	EIMMTLink() {
 		FirefoxOptions options = new FirefoxOptions();
-		// options.addArguments("-headless");
+		options.addArguments("-headless");
 
 		FirefoxDriverService service = new GeckoDriverService.Builder().withLogOutput(System.out).build();
 
