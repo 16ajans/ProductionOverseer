@@ -13,16 +13,29 @@ import productionoverseer.EIMMTLink.FoundDuplicateOrderException;
 public class Operator {
 
 	public static void main(String... args) {
-		for (String arg : args) System.out.println(arg);
-		
+
 		LocalDate today = LocalDate.now();
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMddyyyy");
 		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmm");
 
 		String dateFrom = dateFormatter.format(today);
 		String dateTo = null;
-		String ordDeskUser = "3605982";
-		String excelDest = "C:/temp/" + dateFrom + "_THRU_" + timeFormatter.format(LocalDateTime.now()) + ".xlsx";
+		String ordDeskUser = null;
+		String outputDir = "C:/temp/";
+		
+		for (int i = 0; i < args.length; i += 2) {
+			if (args[i].equals("--bems")) {
+				ordDeskUser = args[i + 1];
+			}
+			if (args[i].equals("--from")) {
+				dateFrom = args[i + 1];
+			}
+			if (args[i].equals("--to")) {
+				dateTo = args[i + 1];
+			}
+		}
+
+		String excelDest = outputDir + dateFrom + "_THRU_" + (dateTo != null ? dateTo + "T" : "") + timeFormatter.format(LocalDateTime.now()) + (ordDeskUser != null ? "_FOR_" + ordDeskUser : "") + ".xlsx";
 		String hapShare = "//Mw/wch-mil/PEDS_HAP_SHARE/";
 
 		List<String> roots = List
@@ -65,9 +78,10 @@ public class Operator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
-			Runtime.getRuntime().exec("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"" + excelDest + "\"");
+			Runtime.getRuntime().exec(
+					"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -Command \"" + excelDest + "\"");
 			System.out.println("Opening report . . .");
 		} catch (IOException e) {
 			e.printStackTrace();
