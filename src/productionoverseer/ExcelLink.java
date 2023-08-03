@@ -22,7 +22,7 @@ public class ExcelLink {
 			"orderDeskFtpHapDateTime", "cancelledDateTime", "vendorProcessDateTime", "hapPdtCompletedDateTime",
 			"orderReportFiles", "drawingFiles");
 
-	public static void export(String path, List<BundledOrder> bundledOrders, List<HAPRequest> requests) throws IOException {
+	public static void export(String path, List<BundledOrder> bundledOrders) throws IOException {
 
 		XSSFWorkbook wb = new XSSFWorkbook();
 		
@@ -63,7 +63,7 @@ public class ExcelLink {
 
 			Row row = sh.createRow(i);
 
-			List<String> orderData = order.listAttribs();
+			List<String> orderData = order.listAttrs();
 			List<LocalDateTime> orderDates = order.listDates();
 
 			int j = 0;
@@ -115,8 +115,8 @@ public class ExcelLink {
 		return sh;
 	}
 	
-	private Sheet buildHAPSheet(XSSFWorkbook wb) {
-		return null;
-	}
+//	private Sheet buildHAPSheet(XSSFWorkbook wb) {
+//		return null;
+//	}
 
 }

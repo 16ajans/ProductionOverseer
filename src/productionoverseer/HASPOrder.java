@@ -55,6 +55,7 @@ public class HASPOrder {
 		this.orderId = orderId;
 		this.drawingNumber = drawingNumber;
 		this.sheetId = sheetId;
+		
 		hydrated = false;
 	}
 
@@ -109,7 +110,7 @@ public class HASPOrder {
 		hydrated = true;
 	}
 
-	public List<String> listAttribs() {
+	public List<String> listAttrs() {
 
 		return Arrays.asList(orderId, drawingNumber, sheetId, revision, disclosureValue, airplaneModel, suppCode,
 				suppName, custBemsid, custName, deliverTo, buLocDept, ordDeskUser, ordDeskUserName, siteRequesting,

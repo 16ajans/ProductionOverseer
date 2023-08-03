@@ -56,11 +56,12 @@ public class Operator {
 		SearchManager searchManager = new SearchManager(roots, orders);
 		searchManager.start();
 
-		List<HAPRequest> requests = new ArrayList<>();
+//		List<HAPRequest> requests = new ArrayList<>();
 		
 		orders.stream().forEach(order -> {
 			try {
-				requests.addAll(eimmtLink.hydrateHASPOrder(order));
+//				requests.addAll(eimmtLink.hydrateHASPOrder(order));
+				eimmtLink.hydrateHASPOrder(order);
 			} catch (FoundDuplicateOrderException e) {
 				e.printStackTrace();
 				e.printOrderIds();
@@ -81,7 +82,7 @@ public class Operator {
 				.collect(Collectors.toList());
 
 		try {
-			ExcelLink.export(excelDest, bundledOrders, requests);
+			ExcelLink.export(excelDest, bundledOrders);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

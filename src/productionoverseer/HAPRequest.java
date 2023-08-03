@@ -8,11 +8,14 @@ import org.jsoup.nodes.Element;
 
 public class HAPRequest {
 	
+	String uri;
 	HASPOrder parent;
 	
+	boolean hydrated;
+	
 	String requestId;
-	String ploperator;
-	String ploperatorName;
+	String plotOperator;
+	String plotOperatorName; // TODO: how to get?
 	
 	int inches;
 	int gridLen;
@@ -31,16 +34,19 @@ public class HAPRequest {
 	boolean processReworkValue;
 	
 	String comments;
-
-	HAPRequest(HASPOrder parent, String requestId, String ploperator, String requestData) {
-		this.parent = parent;
+	
+	HAPRequest(String uri, String requestId) {
+		this.uri = "https://eimmt.web.boeing.com/eimmt-web/app/" + uri;
 		this.requestId = requestId;
-		String[] ploperatorInfo = ploperator.split("-");
-		this.ploperator = ploperatorInfo[0].strip();
-		this.ploperatorName = ploperatorInfo[1].strip();
 		
+		hydrated = false;
+	}
+
+	public void hydrate(String requestData) {
 		Document requestDoc = Jsoup.parseBodyFragment(requestData);
 		Element sheetPlotAttrs = requestDoc.getElementById("sheetPlotAttrs");
+		
+		plotOperator = sheetPlotAttrs.getElementById("plotOperator").text();
 		
 		inches = Integer.parseInt(sheetPlotAttrs.getElementById("inches").text());
 		gridLen = Integer.parseInt(sheetPlotAttrs.getElementById("gridLen").text());
@@ -59,6 +65,8 @@ public class HAPRequest {
 		processReworkValue = sheetPlotAttrs.getElementById("processReworkValue").hasClass("active");
 
 		comments = sheetPlotAttrs.getElementById("comments").text();
+		
+		hydrated = true;
 	}
 	
 }
