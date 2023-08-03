@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,9 +56,11 @@ public class Operator {
 		SearchManager searchManager = new SearchManager(roots, orders);
 		searchManager.start();
 
+		List<HAPRequest> requests = new ArrayList<>();
+		
 		orders.stream().forEach(order -> {
 			try {
-				eimmtLink.hydrateHASPOrder(order);
+				requests.addAll(eimmtLink.hydrateHASPOrder(order));
 			} catch (FoundDuplicateOrderException e) {
 				e.printStackTrace();
 				e.printOrderIds();
@@ -74,11 +77,11 @@ public class Operator {
 
 		List<Path> searchResults = searchManager.getResults();
 
-		List<BundledOrder> bundledOrders = orders.parallelStream().map(order -> new BundledOrder(order, searchResults))
+		List<BundledOrder> bundledOrders = orders.parallelStream().map(order -> new BundledOrder(order, searchResults, hapShare))
 				.collect(Collectors.toList());
 
 		try {
-			ExcelLink.export(excelDest, bundledOrders);
+			ExcelLink.export(excelDest, bundledOrders, requests);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

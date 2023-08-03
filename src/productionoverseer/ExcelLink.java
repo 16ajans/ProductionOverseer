@@ -15,19 +15,44 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelLink {
 
-	public static List<String> headers = Arrays.asList("orderId", "drawingNumber", "sheetId", "revision",
+	public static List<String> haspHeaders = Arrays.asList("orderId", "drawingNumber", "sheetId", "revision",
 			"disclosureValue", "airplaneModel", "suppCode", "suppName", "custBemsid", "custName", "deliverTo",
 			"buLocDept", "ordDeskUser", "ordDeskUserName", "siteRequesting", "sitePerformingLoc", "otherSys",
 			"priority", "media", "convVendor", "orderComments", "orderDateTime", "customerRequestDateTime",
 			"orderDeskFtpHapDateTime", "cancelledDateTime", "vendorProcessDateTime", "hapPdtCompletedDateTime",
 			"orderReportFiles", "drawingFiles");
 
-	public static void export(String path, List<BundledOrder> bundledOrders) throws IOException {
+	public static void export(String path, List<BundledOrder> bundledOrders, List<HAPRequest> requests) throws IOException {
 
 		XSSFWorkbook wb = new XSSFWorkbook();
-		Sheet sh = wb.createSheet("HO Records");
-		ExcelLink.insertHeaders(sh, headers);
+		
+		buildHASPSheet(wb, bundledOrders);
 
+		FileOutputStream out = new FileOutputStream(path);
+
+		wb.write(out);
+		out.close();
+		wb.close();
+		System.out.println("Workbook closed.");
+	}
+
+	private static Sheet insertHeaders(Sheet sheet, List<String> headers) {
+		Row row = sheet.createRow(0);
+		int j = 0;
+		for (String header : headers) {
+			Cell cell = row.createCell(j);
+			cell.setCellValue(header);
+
+			j++;
+		}
+
+		return sheet;
+	}
+	
+	private static Sheet buildHASPSheet(XSSFWorkbook wb, List<BundledOrder> bundledOrders) {
+		Sheet sh = wb.createSheet("HO Records");
+		ExcelLink.insertHeaders(sh, haspHeaders);
+		
 		DataFormat format = wb.createDataFormat();
 		CellStyle style;
 
@@ -66,39 +91,32 @@ public class ExcelLink {
 
 			Cell orderReportCell = row.createCell(j++);
 			Cell drawingFileCell = row.createCell(j++);
-			String orderReportFiles = bundle.getOrderReportFiles().toString();
-			String drawingFiles = bundle.getDrawingFiles().toString();
+			
+			style = wb.createCellStyle();
+			style.setWrapText(true);
+			
+			orderReportCell.setCellStyle(style);
+			drawingFileCell.setCellStyle(style);
 
-			orderReportCell.setCellValue(orderReportFiles.substring(1, orderReportFiles.length() - 1));
-			drawingFileCell.setCellValue(drawingFiles.substring(1, drawingFiles.length() - 1));
+			List<String> orderReportFiles = bundle.getOrderReportFiles();
+			List<String> drawingFiles = bundle.getDrawingFiles();
+
+			orderReportCell.setCellValue(String.join(", ", orderReportFiles));
+			drawingFileCell.setCellValue(String.join(", ", drawingFiles));
 
 			i++;
 		}
 		System.out.println("Created " + (i - 1) + " rows.");
 
-		for (int k = 0; k < headers.size(); k++) {
+		for (int k = 0; k < haspHeaders.size(); k++) {
 			sh.autoSizeColumn(k);
 		}
-
-		FileOutputStream out = new FileOutputStream(path);
-
-		wb.write(out);
-		out.close();
-		wb.close();
-		System.out.println("Workbook closed.");
+		
+		return sh;
 	}
-
-	private static Sheet insertHeaders(Sheet sheet, List<String> headers) {
-		Row row = sheet.createRow(0);
-		int j = 0;
-		for (String header : headers) {
-			Cell cell = row.createCell(j);
-			cell.setCellValue(header);
-
-			j++;
-		}
-
-		return sheet;
+	
+	private Sheet buildHAPSheet(XSSFWorkbook wb) {
+		return null;
 	}
 
 }
