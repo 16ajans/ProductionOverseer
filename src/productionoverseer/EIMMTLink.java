@@ -3,6 +3,8 @@ package productionoverseer;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -101,7 +103,50 @@ public class EIMMTLink {
 		return orders;
 	}
 
-	public void hydrateHASPOrder(HASPOrder order) throws FoundDuplicateOrderException {
+	private List<HAPRequest> getHAPRequests(HASPOrder parent) {
+		List<HAPRequest> requests = new ArrayList<>();
+
+		Pattern numbers = Pattern.compile("[0-9]+");
+
+		WebElement haprs = driver.findElement(By.id("showHaprs"));
+		Matcher matcher = numbers.matcher(haprs.getAttribute("innerHTML"));
+		matcher.find();
+		if (Integer.parseInt(matcher.group()) > 0) {
+			haprs.click();
+
+			WebElement searchResult = new WebDriverWait(driver, Duration.ofSeconds(3))
+					.until(ExpectedConditions.presenceOfElementLocated(
+							By.xpath("/html/body/div[3]/div/div[3]/div/div/div/div[2]/div/div[1]/div[1]/table")));
+
+			Document resultDoc = Jsoup.parseBodyFragment(searchResult.getAttribute("outerHTML"));
+			Elements rows = resultDoc.getElementsByTag("tr");
+			rows.remove(0);
+
+			for (int i = 0; i < rows.size(); i++) {
+				String requestId = rows.get(i).select("td:nth-child(1) > a").first().text();
+				String ploperator = rows.get(i).select("td:nth-child(3) > a").first().text();
+
+				new WebDriverWait(driver, Duration.ofSeconds(3))
+						.until(ExpectedConditions.elementToBeClickable(
+								By.xpath("//*[@id=\"haprsTable\"]/div[1]/table/tbody/tr[" + (i + 1) + "]/td[1]/a")))
+						.click();
+
+				new WebDriverWait(driver, Duration.ofSeconds(3)).until(
+						ExpectedConditions.textToBePresentInElementLocated(By.id("haprsPopupHeadline"), requestId));
+
+				WebElement requestInfo = driver.findElement(By.id("sheetPlotAttrs"));
+				requests.add(new HAPRequest(parent, requestId, ploperator, requestInfo.getAttribute("outerHTML")));
+
+				driver.findElement(By.id("back2haprsTable")).click();
+			}
+
+			driver.findElement(By.xpath("/html/body/div[3]/div/div[3]/div/div/div/div[1]/button")).click();
+		}
+
+		return requests;
+	}
+
+	public List<HAPRequest> hydrateHASPOrder(HASPOrder order) throws FoundDuplicateOrderException {
 		driver.get(order.uri);
 
 		new WebDriverWait(driver, Duration.ofMillis(500)).until(ExpectedConditions.and(
@@ -120,6 +165,8 @@ public class EIMMTLink {
 		order.hydrate(orderInfo.getAttribute("outerHTML"));
 
 		lastOrder = order;
+
+		return getHAPRequests(order);
 	}
 
 	public class FoundDuplicateOrderException extends Exception {

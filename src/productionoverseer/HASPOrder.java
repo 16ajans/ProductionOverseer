@@ -121,7 +121,7 @@ public class HASPOrder {
 		return Arrays.asList(order, customerRequest, orderDeskFtpHap, cancelled, vendorProcess, hapPdtCompleted);
 	}
 
-	private static LocalDateTime tryDateTime(Element parent, String baseId) {
+	static LocalDateTime tryDateTime(Element parent, String baseId) {
 		try {
 			String date = parent.getElementById(baseId + "Date").text();
 			String time = parent.getElementById(baseId + "Time").text();
