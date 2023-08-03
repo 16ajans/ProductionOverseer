@@ -23,9 +23,10 @@ public class EIMMTLink {
 	private WebDriver driver;
 	private HASPOrder lastOrder;
 
-	EIMMTLink() {
+	EIMMTLink(Boolean headless) {
 		FirefoxOptions options = new FirefoxOptions();
-		options.addArguments("-headless");
+		if (headless)
+			options.addArguments("-headless");
 
 		FirefoxDriverService service = new GeckoDriverService.Builder().withLogOutput(System.out).build();
 

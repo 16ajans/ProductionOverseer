@@ -22,6 +22,7 @@ public class Operator {
 		String dateTo = null;
 		String ordDeskUser = null;
 		String outputDir = "C:/temp/";
+		Boolean headless = false;
 		
 		for (int i = 0; i < args.length; i += 2) {
 			if (args[i].equals("--bems")) {
@@ -32,6 +33,9 @@ public class Operator {
 			}
 			if (args[i].equals("--to")) {
 				dateTo = args[i + 1];
+			}
+			if (args[i].equals("--headless")) {
+				headless = true;
 			}
 		}
 
@@ -44,7 +48,7 @@ public class Operator {
 						"St_Louis/CGM", "St_Louis/TIFF")
 				.parallelStream().map(dir -> hapShare + dir).collect(Collectors.toList());
 
-		EIMMTLink eimmtLink = new EIMMTLink();
+		EIMMTLink eimmtLink = new EIMMTLink(headless);
 
 		List<HASPOrder> orders = eimmtLink.queryHASPOrders(ordDeskUser, dateFrom, dateTo);
 
