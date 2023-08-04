@@ -21,8 +21,9 @@ public class Operator {
 		String dateFrom = dateFormatter.format(today);
 		String dateTo = null;
 		String ordDeskUser = null;
-		String outputDir = "C:/temp/";
 		Boolean headless = true;
+
+		String outputDir = "C:/temp/";
 
 		for (int i = 0; i < args.length; i += 2) {
 			if (args[i].equals("--bems")) {
@@ -34,8 +35,8 @@ public class Operator {
 			if (args[i].equals("--to")) {
 				dateTo = args[i + 1];
 			}
-			if (args[i].equals("--headless")) {
-				headless = true;
+			if (args[i].equals("--visible")) {
+				headless = false;
 			}
 		}
 
@@ -52,38 +53,38 @@ public class Operator {
 
 		EIMMTLink orderWindow = new EIMMTLink(headless, ordDeskUser, dateFrom, dateTo);
 		EIMMTLink requestWindow = new EIMMTLink(headless, null, dateFrom, dateTo);
-		
+
 		Thread orderFetch = new Thread(new Runnable() {
 			public void run() {
 				orderWindow.open();
-				
+
 				orderWindow.queryHASPOrders();
 			}
 		});
-		
+
 		Thread requestFetch = new Thread(new Runnable() {
 			public void run() {
 				requestWindow.open();
-				
+
 				requestWindow.queryHAPRequests();
 			}
 		});
-		
+
 		orderFetch.start();
 		requestFetch.start();
-		
+
 		try {
 			orderFetch.join();
 			requestFetch.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		List<HASPOrder> orders = orderWindow.orders;
 		List<HAPRequest> requests = requestWindow.requests;
 
 		Thread orderHydration = new Thread(new Runnable() {
-			public void run() {		
+			public void run() {
 				orders.stream().forEach(order -> {
 					try {
 						orderWindow.hydrateHASPOrder(order);
@@ -96,7 +97,7 @@ public class Operator {
 		});
 
 		Thread requestHydration = new Thread(new Runnable() {
-			public void run() {	
+			public void run() {
 				requests.stream().forEach(request -> {
 					requestWindow.hydrateHAPRequest(request);
 				});

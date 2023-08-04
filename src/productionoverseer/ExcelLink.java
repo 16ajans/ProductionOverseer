@@ -30,8 +30,8 @@ public class ExcelLink {
 
 		XSSFWorkbook wb = new XSSFWorkbook();
 
-		buildHASPSheet(wb, bundledOrders);
-		buildHAPSheet(wb, requests);
+		if (bundledOrders != null) buildHASPSheet(wb, bundledOrders);
+		if (requests != null) buildHAPSheet(wb, requests);
 
 		FileOutputStream out = new FileOutputStream(path);
 
