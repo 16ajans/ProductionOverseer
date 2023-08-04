@@ -22,7 +22,7 @@ public class Operator {
 		String dateTo = null;
 		String ordDeskUser = null;
 		String outputDir = "C:/temp/";
-		Boolean headless = false;
+		Boolean headless = true;
 
 		for (int i = 0; i < args.length; i += 2) {
 			if (args[i].equals("--bems")) {
@@ -50,31 +50,74 @@ public class Operator {
 						"St_Louis/CGM", "St_Louis/TIFF")
 				.parallelStream().map(dir -> hapShare + dir).collect(Collectors.toList());
 
-		EIMMTLink eimmtLink = new EIMMTLink(headless);
+		EIMMTLink orderWindow = new EIMMTLink(headless, ordDeskUser, dateFrom, dateTo);
+		EIMMTLink requestWindow = new EIMMTLink(headless, null, dateFrom, dateTo);
+		
+		Thread orderFetch = new Thread(new Runnable() {
+			public void run() {
+				orderWindow.open();
+				
+				orderWindow.queryHASPOrders();
+			}
+		});
+		
+		Thread requestFetch = new Thread(new Runnable() {
+			public void run() {
+				requestWindow.open();
+				
+				requestWindow.queryHAPRequests();
+			}
+		});
+		
+		orderFetch.start();
+		requestFetch.start();
+		
+		try {
+			orderFetch.join();
+			requestFetch.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		List<HASPOrder> orders = orderWindow.orders;
+		List<HAPRequest> requests = requestWindow.requests;
 
-		List<HASPOrder> orders = eimmtLink.queryHASPOrders(ordDeskUser, dateFrom, dateTo);
+		Thread orderHydration = new Thread(new Runnable() {
+			public void run() {		
+				orders.stream().forEach(order -> {
+					try {
+						orderWindow.hydrateHASPOrder(order);
+					} catch (FoundDuplicateOrderException e) {
+						e.printStackTrace();
+						e.printOrderIds();
+					}
+				});
+			}
+		});
+
+		Thread requestHydration = new Thread(new Runnable() {
+			public void run() {	
+				requests.stream().forEach(request -> {
+					requestWindow.hydrateHAPRequest(request);
+				});
+			}
+		});
+
+		orderHydration.start();
+		requestHydration.start();
 
 		SearchManager searchManager = new SearchManager(roots, orders);
 		searchManager.start();
 
-//		List<HAPRequest> requests = new ArrayList<>();
-
-		orders.stream().forEach(order -> {
-			try {
-//				requests.addAll(eimmtLink.hydrateHASPOrder(order));
-				eimmtLink.hydrateHASPOrder(order);
-			} catch (FoundDuplicateOrderException e) {
-				e.printStackTrace();
-				e.printOrderIds();
-			}
-		});
-
-		eimmtLink.close();
-
 		try {
+			orderHydration.join();
+			orderWindow.close();
+			requestHydration.join();
+			requestWindow.close();
+
 			searchManager.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
 		}
 
 		List<Path> searchResults = searchManager.getResults();
@@ -83,7 +126,7 @@ public class Operator {
 				.map(order -> new BundledOrder(order, searchResults, hapShare)).collect(Collectors.toList());
 
 		try {
-			ExcelLink.export(excelDest, bundledOrders);
+			ExcelLink.export(excelDest, bundledOrders, requests);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -22,8 +22,25 @@ public class EIMMTLink {
 
 	private WebDriver driver;
 	private HASPOrder lastOrder;
+	private boolean headless;
+	
+	List<HASPOrder> orders;
+	List<HAPRequest> requests;
+	
+	String ordDeskUser;
+	String dateFrom;
+	String dateTo;
 
-	EIMMTLink(Boolean headless) {
+	EIMMTLink(Boolean headless, String ordDeskUser, String dateFrom, String dateTo) {
+		this.headless = headless;
+		lastOrder = null;
+		
+		this.ordDeskUser = ordDeskUser;
+		this.dateFrom = dateFrom;
+		this.dateTo = dateTo;
+	}
+	
+	public void open() {
 		FirefoxOptions options = new FirefoxOptions();
 		if (headless)
 			options.addArguments("-headless");
@@ -38,7 +55,6 @@ public class EIMMTLink {
 				.until(ExpectedConditions.elementToBeClickable(By.id("menuHaspInquireLink")));
 
 		System.out.println("Passed authentication.");
-		lastOrder = null;
 	}
 
 	public void close() {
@@ -46,7 +62,7 @@ public class EIMMTLink {
 		System.out.println("Browser closed.");
 	}
 
-	public List<HASPOrder> queryHASPOrders(String ordDeskUser, String orderDateTimeFrom, String orderDateTimeTo) {
+	public void queryHASPOrders() {
 
 		String xpath;
 		String uri;
@@ -62,15 +78,15 @@ public class EIMMTLink {
 		new WebDriverWait(driver, Duration.ofSeconds(3))
 				.until(ExpectedConditions.presenceOfElementLocated(By.id("searchResult")));
 
-		if (orderDateTimeFrom != null || orderDateTimeTo != null) {
+		if (dateFrom != null || dateTo != null) {
 			driver.findElement(By.id("addParamSelectComboboxInput")).sendKeys("Order Date Time");
 			driver.findElement(By.id("addCriteriaBtn")).click();
 		}
-		if (orderDateTimeFrom != null) {
-			driver.findElement(By.id("{{cr.id + '_1'}}Date")).sendKeys(orderDateTimeFrom);
+		if (dateFrom != null) {
+			driver.findElement(By.id("{{cr.id + '_1'}}Date")).sendKeys(dateFrom);
 		}
-		if (orderDateTimeTo != null) {
-			driver.findElement(By.id("{{cr.id + '_2'}}Date")).sendKeys(orderDateTimeTo);
+		if (dateTo != null) {
+			driver.findElement(By.id("{{cr.id + '_2'}}Date")).sendKeys(dateTo);
 		}
 		driver.findElement(By.id("addParamSelectComboboxInput")).sendKeys("SITE Requesting");
 		driver.findElement(By.id("addCriteriaBtn")).click();
@@ -98,56 +114,59 @@ public class EIMMTLink {
 		}
 
 		System.out.println("Found " + orders.size() + " orders.");
-		return orders;
+		this.orders = orders;
 	}
 
-//	private List<HAPRequest> getHAPRequests(HASPOrder parent) {
-//		List<HAPRequest> requests = new ArrayList<>();
-//
-//		Pattern numbers = Pattern.compile("[0-9]+");
-//
-//		WebElement haprs = driver.findElement(By.id("showHaprs"));
-//		Matcher matcher = numbers.matcher(haprs.getAttribute("innerHTML"));
-//		matcher.find();
-//		if (Integer.parseInt(matcher.group()) > 0) {
-//			haprs.click();
-//
-//			WebElement searchResult = new WebDriverWait(driver, Duration.ofSeconds(3))
-//					.until(ExpectedConditions.presenceOfElementLocated(
-//							By.xpath("/html/body/div[3]/div/div[3]/div/div/div/div[2]/div/div[1]/div[1]/table")));
-//
-//			Document resultDoc = Jsoup.parseBodyFragment(searchResult.getAttribute("outerHTML"));
-//			Elements rows = resultDoc.getElementsByTag("tr");
-//			rows.remove(0);
-//
-//			for (int i = 0; i < rows.size(); i++) {
-//				String requestId = rows.get(i).select("td:nth-child(1) > a").first().text();
-//				String ploperator = rows.get(i).select("td:nth-child(3) > a").first().text();
-//
-//				new WebDriverWait(driver, Duration.ofSeconds(3))
-//						.until(ExpectedConditions.elementToBeClickable(
-//								By.xpath("//*[@id=\"haprsTable\"]/div[1]/table/tbody/tr[" + (i + 1) + "]/td[1]/a")))
-//						.click();
-//
-//				new WebDriverWait(driver, Duration.ofSeconds(3)).until(
-//						ExpectedConditions.textToBePresentInElementLocated(By.id("haprsPopupHeadline"), requestId));
-//
-//				WebElement requestInfo = driver.findElement(By.id("sheetPlotAttrs"));
-//				requests.add(new HAPRequest(parent, requestId, ploperator, requestInfo.getAttribute("outerHTML")));
-//
-//				driver.findElement(By.id("back2haprsTable")).click();
-//			}
-//
-//			driver.findElement(By.xpath("/html/body/div[3]/div/div[3]/div/div/div/div[1]/button")).click();
-//		}
-//
-//		return requests;
-//	}
+	public void queryHAPRequests() {
+
+		String xpath;
+		String uri;
+		uri = "https://eimmt.web.boeing.com/eimmt-web/app/#/hapr/inquire?aopn=1";
+		xpath = "/html/body/div[3]/div/div[3]/table/thead/tr/th[7]";
+
+		driver.get(uri);
+		new WebDriverWait(driver, Duration.ofSeconds(3))
+				.until(ExpectedConditions.presenceOfElementLocated(By.id("searchResult")));
+
+		if (dateFrom != null || dateTo != null) {
+			driver.findElement(By.id("addParamSelectComboboxInput")).sendKeys("Plotted Date");
+			driver.findElement(By.id("addCriteriaBtn")).click();
+		}
+		if (dateFrom != null) {
+			driver.findElement(By.id("{{cr.id + '_1'}}Date")).sendKeys(dateFrom);
+		}
+		if (dateTo != null) {
+			driver.findElement(By.id("{{cr.id + '_2'}}Date")).sendKeys(dateTo);
+		}
+
+		driver.findElement(By.id("submit")).click();
+		new WebDriverWait(driver, Duration.ofSeconds(3))
+				.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath)));
+
+		WebElement searchResult = driver.findElement(By.id("searchResult"));
+
+		Document resultDoc = Jsoup.parseBodyFragment(searchResult.getAttribute("outerHTML"));
+		Element resultTable = resultDoc.getElementById("searchResult");
+		Elements rows = resultTable.getElementsByTag("tr");
+		rows.remove(0);
+
+		List<HAPRequest> requests = new ArrayList<>();
+		for (Element row : rows) {
+			String requestUri = row.select("a").first().attr("href");
+			String requestId = row.select("td").first().text();
+
+			requests.add(new HAPRequest(requestUri, requestId));
+		}
+
+		System.out.println("Found " + requests.size() + " requests.");
+		this.requests = requests;
+	}
 
 	public void hydrateHASPOrder(HASPOrder order) throws FoundDuplicateOrderException {
 		driver.get(order.uri);
 
 		new WebDriverWait(driver, Duration.ofMillis(500)).until(ExpectedConditions.and(
+				ExpectedConditions.textToBePresentInElementLocated(By.id("headline"), order.orderId),
 				ExpectedConditions.textToBePresentInElementLocated(By.id("drawingNumber"), order.drawingNumber),
 				ExpectedConditions.textToBePresentInElementLocated(By.id("sheetId"), order.sheetId)));
 		if (lastOrder != null) {
@@ -159,12 +178,21 @@ public class EIMMTLink {
 			}
 		}
 
-		WebElement orderInfo = driver.findElement(By.xpath("/html/body/div[3]/div/div[4]"));
-		order.hydrate(orderInfo.getAttribute("outerHTML"));
+		String orderInfo = driver.findElement(By.xpath("/html/body/div[3]/div/div[4]")).getAttribute("outerHTML");
+		order.hydrate(orderInfo);
 
 		lastOrder = order;
+	}
 
-//		return getHAPRequests(order);
+	public void hydrateHAPRequest(HAPRequest request) {
+		driver.get(request.uri);
+
+		new WebDriverWait(driver, Duration.ofMillis(500))
+				.until(ExpectedConditions.textToBePresentInElementLocated(By.id("headline"), request.requestId));
+
+		WebElement requestInfo = driver.findElement(By.id("sheetPlotAttrs"));
+		WebElement parent = driver.findElement(By.xpath("//*[@id=\"showHasp\"]/span"));
+		request.hydrate(requestInfo.getAttribute("outerHTML"), parent.getText().split("#")[1]);
 	}
 
 	public class FoundDuplicateOrderException extends Exception {

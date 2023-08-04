@@ -1,6 +1,8 @@
 package productionoverseer;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,31 +11,30 @@ import org.jsoup.nodes.Element;
 public class HAPRequest {
 
 	String uri;
-	HASPOrder parent;
 
 	boolean hydrated;
 
+	String parent;
 	String requestId;
 	String plotOperator;
 	String plotOperatorName; // TODO: how to get?
-
-	int inches;
-	int gridLen;
-	int temp;
-	int hum;
-
-	LocalDateTime plot;
-
+	
 	String typeOfCheck;
 	String plotter;
+	String comments;
+	
+	LocalDateTime plot;
+
+	String inches;
+	String gridLen;
+	String temp;
+	String hum;
 
 	boolean rejectRollValue;
 	boolean processWasteValue;
 	boolean lateValue;
 	boolean customerReworkValue;
 	boolean processReworkValue;
-
-	String comments;
 
 	HAPRequest(String uri, String requestId) {
 		this.uri = "https://eimmt.web.boeing.com/eimmt-web/app/" + uri;
@@ -42,16 +43,16 @@ public class HAPRequest {
 		hydrated = false;
 	}
 
-	public void hydrate(String requestData) {
+	public void hydrate(String requestData, String parentId) {
 		Document requestDoc = Jsoup.parseBodyFragment(requestData);
 		Element sheetPlotAttrs = requestDoc.getElementById("sheetPlotAttrs");
 
 		plotOperator = sheetPlotAttrs.getElementById("plotOperator").text();
 
-		inches = Integer.parseInt(sheetPlotAttrs.getElementById("inches").text());
-		gridLen = Integer.parseInt(sheetPlotAttrs.getElementById("gridLen").text());
-		temp = Integer.parseInt(sheetPlotAttrs.getElementById("temp").text());
-		hum = Integer.parseInt(sheetPlotAttrs.getElementById("hum").text());
+		inches = sheetPlotAttrs.getElementById("inches").text();
+		gridLen = sheetPlotAttrs.getElementById("gridLen").text();
+		temp = sheetPlotAttrs.getElementById("temp").text();
+		hum = sheetPlotAttrs.getElementById("hum").text();
 
 		plot = HASPOrder.tryDateTime(sheetPlotAttrs, "plot");
 
@@ -69,4 +70,15 @@ public class HAPRequest {
 		hydrated = true;
 	}
 
+	public List<String> listAttrs() {
+		return Arrays.asList(parent, requestId, plotOperator, plotOperatorName, typeOfCheck, plotter, inches, gridLen, temp, hum, comments);
+	}
+	
+	public List<LocalDateTime> listDates() {
+		return Arrays.asList(plot);
+	}
+	
+	public List<Boolean> listBool() {
+		return Arrays.asList(rejectRollValue, processWasteValue, lateValue, customerReworkValue, processReworkValue);
+	}
 }
