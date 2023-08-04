@@ -22,7 +22,7 @@ public class ExcelLink {
 			"orderDeskFtpHapDateTime", "cancelledDateTime", "vendorProcessDateTime", "hapPdtCompletedDateTime",
 			"orderReportFiles", "drawingFiles");
 	public static List<String> hapHeaders = Arrays.asList("parent", "requestId", "plotOperator", "plotOperatorName",
-			"typeOfCheck", "plotter", "comments", "plot", "inches", "gridLen", "temp", "hum", "rejectRollValue",
+			"typeOfCheck", "plotter", "inches", "gridLen", "temp", "hum", "comments", "plot", "rejectRollValue",
 			"processWasteValue", "lateValue", "customerReworkValue", "processReworkValue");
 
 	public static void export(String path, List<BundledOrder> bundledOrders, List<HAPRequest> requests)
@@ -157,9 +157,9 @@ public class ExcelLink {
 
 				j++;
 			}
-			
+
 			for (Boolean bool : reqBools) {
-				
+
 			}
 
 			i++;

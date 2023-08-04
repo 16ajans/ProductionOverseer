@@ -43,7 +43,9 @@ public class HAPRequest {
 		hydrated = false;
 	}
 
-	public void hydrate(String requestData, String parentId) {
+	public void hydrate(String requestData, String parent) {
+		this.parent = parent;
+		
 		Document requestDoc = Jsoup.parseBodyFragment(requestData);
 		Element sheetPlotAttrs = requestDoc.getElementById("sheetPlotAttrs");
 
