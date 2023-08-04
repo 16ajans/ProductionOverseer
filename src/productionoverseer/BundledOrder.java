@@ -32,11 +32,13 @@ public class BundledOrder {
 	}
 
 	List<String> getOrderReportFiles() {
-		return orderReportFiles.stream().map(path -> path.toString()).map(str -> str.substring(hapShare.length())).collect(Collectors.toList());
+		return orderReportFiles.stream().map(path -> path.toString()).map(str -> str.substring(hapShare.length()))
+				.collect(Collectors.toList());
 	}
 
 	List<String> getDrawingFiles() {
-		return drawingFiles.stream().map(path -> path.toString()).map(str -> str.substring(hapShare.length())).collect(Collectors.toList());
+		return drawingFiles.stream().map(path -> path.toString()).map(str -> str.substring(hapShare.length()))
+				.collect(Collectors.toList());
 	}
 
 }

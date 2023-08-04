@@ -55,7 +55,7 @@ public class HASPOrder {
 		this.orderId = orderId;
 		this.drawingNumber = drawingNumber;
 		this.sheetId = sheetId;
-		
+
 		hydrated = false;
 	}
 

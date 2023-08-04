@@ -25,7 +25,7 @@ public class ExcelLink {
 	public static void export(String path, List<BundledOrder> bundledOrders) throws IOException {
 
 		XSSFWorkbook wb = new XSSFWorkbook();
-		
+
 		buildHASPSheet(wb, bundledOrders);
 
 		FileOutputStream out = new FileOutputStream(path);
@@ -48,11 +48,11 @@ public class ExcelLink {
 
 		return sheet;
 	}
-	
+
 	private static Sheet buildHASPSheet(XSSFWorkbook wb, List<BundledOrder> bundledOrders) {
 		Sheet sh = wb.createSheet("HO Records");
 		ExcelLink.insertHeaders(sh, haspHeaders);
-		
+
 		DataFormat format = wb.createDataFormat();
 		CellStyle style;
 
@@ -91,10 +91,10 @@ public class ExcelLink {
 
 			Cell orderReportCell = row.createCell(j++);
 			Cell drawingFileCell = row.createCell(j++);
-			
+
 			style = wb.createCellStyle();
 			style.setWrapText(true);
-			
+
 			orderReportCell.setCellStyle(style);
 			drawingFileCell.setCellStyle(style);
 
@@ -111,10 +111,10 @@ public class ExcelLink {
 		for (int k = 0; k < haspHeaders.size(); k++) {
 			sh.autoSizeColumn(k);
 		}
-		
+
 		return sh;
 	}
-	
+
 //	private Sheet buildHAPSheet(XSSFWorkbook wb) {
 //		return null;
 //	}

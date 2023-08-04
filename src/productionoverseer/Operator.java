@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +23,7 @@ public class Operator {
 		String ordDeskUser = null;
 		String outputDir = "C:/temp/";
 		Boolean headless = false;
-		
+
 		for (int i = 0; i < args.length; i += 2) {
 			if (args[i].equals("--bems")) {
 				ordDeskUser = args[i + 1];
@@ -40,7 +39,9 @@ public class Operator {
 			}
 		}
 
-		String excelDest = outputDir + dateFrom + "_THRU_" + (dateTo != null ? dateTo + "T" : "") + timeFormatter.format(LocalDateTime.now()) + (ordDeskUser != null ? "_FOR_" + ordDeskUser : "") + ".xlsx";
+		String excelDest = outputDir + dateFrom + "_THRU_" + (dateTo != null ? dateTo + "T" : "")
+				+ timeFormatter.format(LocalDateTime.now()) + (ordDeskUser != null ? "_FOR_" + ordDeskUser : "")
+				+ ".xlsx";
 		String hapShare = "//Mw/wch-mil/PEDS_HAP_SHARE/";
 
 		List<String> roots = List
@@ -57,7 +58,7 @@ public class Operator {
 		searchManager.start();
 
 //		List<HAPRequest> requests = new ArrayList<>();
-		
+
 		orders.stream().forEach(order -> {
 			try {
 //				requests.addAll(eimmtLink.hydrateHASPOrder(order));
@@ -78,8 +79,8 @@ public class Operator {
 
 		List<Path> searchResults = searchManager.getResults();
 
-		List<BundledOrder> bundledOrders = orders.parallelStream().map(order -> new BundledOrder(order, searchResults, hapShare))
-				.collect(Collectors.toList());
+		List<BundledOrder> bundledOrders = orders.parallelStream()
+				.map(order -> new BundledOrder(order, searchResults, hapShare)).collect(Collectors.toList());
 
 		try {
 			ExcelLink.export(excelDest, bundledOrders);
