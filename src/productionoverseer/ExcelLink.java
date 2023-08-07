@@ -156,46 +156,8 @@ public class ExcelLink {
 				else if (!order.customerRequest.toLocalDate().equals(order.order.toLocalDate().plusDays(SLA)))
 					applyStyle(customerRequest, dateTimeError);
 
-				if (orderReportFiles.size() < 1)
-					applyStyle(orderReports, error);
-				else {
-					for (String file : orderReportFiles) {
-						switch (order.sitePerformingLoc) {
-						case "SEATTLE":
-							if (!file.toLowerCase().startsWith("auburn"))
-								applyStyle(orderReports, error);
-							break;
-						case "EVERETT":
-							if (!file.toLowerCase().startsWith("everett"))
-								applyStyle(orderReports, error);
-							break;
-						case "ST_LOUIS":
-							if (!file.toLowerCase().startsWith("st_louis"))
-								applyStyle(orderReports, error);
-							break;
-						}
-					}
-				}
-				if (drawingFiles.size() < 1)
-					applyStyle(drawings, error);
-				else {
-					for (String file : drawingFiles) {
-						switch (order.sitePerformingLoc) {
-						case "SEATTLE":
-							if (!file.toLowerCase().startsWith("auburn"))
-								applyStyle(drawings, error);
-							break;
-						case "EVERETT":
-							if (!file.toLowerCase().startsWith("everett"))
-								applyStyle(drawings, error);
-							break;
-						case "ST_LOUIS":
-							if (!file.toLowerCase().startsWith("st_louis"))
-								applyStyle(drawings, error);
-							break;
-						}
-					}
-				}
+				chewFiles(order, orderReportFiles, orderReports, error);
+				chewFiles(order, drawingFiles, drawings, error);
 
 			}
 
@@ -283,5 +245,63 @@ public class ExcelLink {
 	private static Cell applyStyle(Cell cell, CellStyle style) {
 		cell.setCellStyle(style);
 		return cell;
+	};
+
+	private static void chewFiles(HASPOrder order, List<String> files, Cell cell, CellStyle error) {
+		if (files.size() == 0) {
+			applyStyle(cell, error);
+			return;
+		} else {
+			for (String file : files) {
+				file = file.toLowerCase();
+				
+				switch (order.sitePerformingLoc) {
+				case "SEATTLE":
+					if (file.startsWith("auburn\\")) {
+						file = file.substring(6);
+						break;
+					}
+				case "EVERETT":
+					if (file.startsWith("everett\\")) {
+						file = file.substring(7);
+						break;
+					}
+				case "ST_LOUIS":
+					if (file.startsWith("st_louis\\")) {
+						file = file.substring(8);
+						break;
+					}
+				default:
+					applyStyle(cell, error);
+					return;
+				}
+
+				if ((file.startsWith("request\\") || file.startsWith("retained\\")) && (file.endsWith("txt") || file.endsWith("pdf"))) {
+					return;
+				} else if (file.startsWith("cgm\\") && file.endsWith("cgm")) {
+					file = file.substring(3);
+					String sheetId = order.sheetId.trim().replaceFirst("^0+(?!$)", "");
+					String combo = String.format("CD%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"));
+					
+					int start = file.indexOf(combo);
+					if (start > -1) {
+						file = file.substring(start);
+						System.out.println(file);
+						return;
+					}
+				} else if (file.startsWith("tiff\\") && file.endsWith("tif\\")) {
+					file = file.substring(4);
+					String combo = String.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue);
+					
+					int start = file.indexOf(combo);
+					if (start > -1) {
+						file = file.substring(start);
+						System.out.println(file);
+						return;
+					}
+				}
+				applyStyle(cell, error);
+			}
+		}
 	}
 }
