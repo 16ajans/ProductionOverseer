@@ -62,17 +62,23 @@ public class ExcelLink {
 	private static Sheet buildHASPSheet(XSSFWorkbook wb, List<BundledOrder> bundledOrders) {
 		Sheet sh = wb.createSheet("HO Records");
 		ExcelLink.insertHeaders(sh, haspHeaders);
-		
+
 		CellStyle error = wb.createCellStyle();
 		error.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		error.setFillForegroundColor(IndexedColors.RED.getIndex());
 		Font font = wb.createFont();
 		font.setColor(IndexedColors.WHITE.getIndex());
 		error.setFont(font);
-		
+
 		DataFormat format = wb.createDataFormat();
 		CellStyle dateTime = wb.createCellStyle();
 		dateTime.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
+
+		CellStyle dateTimeError = wb.createCellStyle();
+		dateTimeError.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
+		dateTimeError.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		dateTimeError.setFillForegroundColor(IndexedColors.RED.getIndex());
+		dateTimeError.setFont(font);
 
 		int i = 1;
 		for (BundledOrder bundle : bundledOrders) {
@@ -84,7 +90,7 @@ public class ExcelLink {
 			createCell(row, 0, order.orderId);
 			createCell(row, 1, order.drawingNumber);
 			createCell(row, 2, order.sheetId);
-			makeCellNonNullable(createCell(row, 3, order.revision), error);
+			Cell revision = createCell(row, 3, order.revision);
 			createCell(row, 4, order.disclosureValue);
 			createCell(row, 5, order.airplaneModel);
 			createCell(row, 6, order.suppCode);
@@ -97,26 +103,101 @@ public class ExcelLink {
 			createCell(row, 13, order.ordDeskUserName);
 			createCell(row, 14, order.siteRequesting);
 			createCell(row, 15, order.sitePerformingLoc);
-			makeCellNonNullable(createCell(row, 16, order.otherSys), error);
-			createCell(row, 17, order.priority);
+			Cell otherSys = createCell(row, 16, order.otherSys);
+			Cell priority = createCell(row, 17, order.priority);
 			createCell(row, 18, order.media);
 			createCell(row, 19, order.convVendor);
 			createCell(row, 20, order.orderComments);
-			makeCellNonNullable(createCell(row, 21, order.order, dateTime), error);
-			makeCellNonNullable(createCell(row, 22, order.customerRequest, dateTime), error);
-			createCell(row, 23, order.orderDeskFtpHap, dateTime);
+			createCell(row, 21, order.order, dateTime);
+			Cell customerRequest = createCell(row, 22, order.customerRequest, dateTime);
+			Cell orderDeskFtpHap = createCell(row, 23, order.orderDeskFtpHap, dateTime);
 			createCell(row, 24, order.cancelled, dateTime);
-			createCell(row, 25, order.vendorProcess, dateTime);
+			Cell vendorProcess = createCell(row, 25, order.vendorProcess, dateTime);
 			createCell(row, 26, order.hapPdtCompleted, dateTime);
 
-			Cell orderReportCell = row.createCell(27);
-			Cell drawingFileCell = row.createCell(28);
+			Cell orderReports = row.createCell(27);
+			Cell drawings = row.createCell(28);
 
 			List<String> orderReportFiles = bundle.getOrderReportFiles();
 			List<String> drawingFiles = bundle.getDrawingFiles();
 
-			orderReportCell.setCellValue(String.join(", ", orderReportFiles));
-			drawingFileCell.setCellValue(String.join(", ", drawingFiles));
+			orderReports.setCellValue(String.join(", ", orderReportFiles));
+			drawings.setCellValue(String.join(", ", drawingFiles));
+
+			int SLA = 4;
+
+			if (order.cancelled == null) {
+				if (order.revision.equals(""))
+					applyStyle(revision, error);
+				if (order.otherSys.equals(""))
+					applyStyle(otherSys, error);
+
+				if (order.convVendor.equals("")) {
+					if (order.orderDeskFtpHap == null)
+						applyStyle(orderDeskFtpHap, dateTimeError);
+					else if (!order.orderDeskFtpHap.toLocalDate().equals(order.order.toLocalDate()))
+						applyStyle(orderDeskFtpHap, dateTimeError);
+				} else {
+					if (order.vendorProcess == null)
+						applyStyle(vendorProcess, dateTimeError);
+					else if (!order.vendorProcess.toLocalDate().equals(order.order.toLocalDate()))
+						applyStyle(vendorProcess, dateTimeError);
+				}
+
+				if (order.suppCode.toLowerCase().startsWith("z0") || order.priority.equals("AOG-AG/Emergent")) {
+					if (order.priority.equals("Standard"))
+						applyStyle(priority, error);
+					SLA = 1;
+				} else if (order.priority.equals("Expedite"))
+					SLA = 2;
+
+				if (order.customerRequest == null)
+					applyStyle(customerRequest, dateTimeError);
+				else if (!order.customerRequest.toLocalDate().equals(order.order.toLocalDate().plusDays(SLA)))
+					applyStyle(customerRequest, dateTimeError);
+
+				if (orderReportFiles.size() < 1)
+					applyStyle(orderReports, error);
+				else {
+					for (String file : orderReportFiles) {
+						switch (order.sitePerformingLoc) {
+						case "SEATTLE":
+							if (!file.toLowerCase().startsWith("auburn"))
+								applyStyle(orderReports, error);
+							break;
+						case "EVERETT":
+							if (!file.toLowerCase().startsWith("everett"))
+								applyStyle(orderReports, error);
+							break;
+						case "ST_LOUIS":
+							if (!file.toLowerCase().startsWith("st_louis"))
+								applyStyle(orderReports, error);
+							break;
+						}
+					}
+				}
+				if (drawingFiles.size() < 1)
+					applyStyle(drawings, error);
+				else {
+					for (String file : drawingFiles) {
+						switch (order.sitePerformingLoc) {
+						case "SEATTLE":
+							if (!file.toLowerCase().startsWith("auburn"))
+								applyStyle(drawings, error);
+							break;
+						case "EVERETT":
+							if (!file.toLowerCase().startsWith("everett"))
+								applyStyle(drawings, error);
+							break;
+						case "ST_LOUIS":
+							if (!file.toLowerCase().startsWith("st_louis"))
+								applyStyle(drawings, error);
+							break;
+						}
+					}
+				}
+
+			}
 
 			i++;
 		}
@@ -199,18 +280,8 @@ public class ExcelLink {
 		return cell;
 	};
 
-	private static Cell makeCellNonNullable(Cell cell, CellStyle error) {
-		switch (cell.getCellType()) {
-		case STRING:
-			if (cell.getStringCellValue().equals(""))
-				cell.setCellStyle(error);
-			break;
-		case NUMERIC:
-			if (cell.getNumericCellValue() == 0.0)
-				cell.setCellStyle(error);
-		default:
-			break;
-		}
+	private static Cell applyStyle(Cell cell, CellStyle style) {
+		cell.setCellStyle(style);
 		return cell;
 	}
 }
