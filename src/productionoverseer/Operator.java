@@ -52,7 +52,6 @@ public class Operator {
 				.parallelStream().map(dir -> hapShare + dir).collect(Collectors.toList());
 
 		EIMMTLink orderWindow = new EIMMTLink(headless, ordDeskUser, dateFrom, dateTo);
-		EIMMTLink requestWindow = new EIMMTLink(headless, null, dateFrom, dateTo);
 
 		Thread orderFetch = new Thread(new Runnable() {
 			public void run() {
@@ -62,26 +61,15 @@ public class Operator {
 			}
 		});
 
-		Thread requestFetch = new Thread(new Runnable() {
-			public void run() {
-				requestWindow.open();
-
-				requestWindow.queryHAPRequests();
-			}
-		});
-
 		orderFetch.start();
-		requestFetch.start();
 
 		try {
 			orderFetch.join();
-			requestFetch.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
 		List<HASPOrder> orders = orderWindow.orders;
-		List<HAPRequest> requests = requestWindow.requests;
 
 		Thread orderHydration = new Thread(new Runnable() {
 			public void run() {
@@ -96,16 +84,7 @@ public class Operator {
 			}
 		});
 
-		Thread requestHydration = new Thread(new Runnable() {
-			public void run() {
-				requests.stream().forEach(request -> {
-					requestWindow.hydrateHAPRequest(request);
-				});
-			}
-		});
-
 		orderHydration.start();
-		requestHydration.start();
 
 		SearchManager searchManager = new SearchManager(roots, orders);
 		searchManager.start();
@@ -113,8 +92,6 @@ public class Operator {
 		try {
 			orderHydration.join();
 			orderWindow.close();
-			requestHydration.join();
-			requestWindow.close();
 
 			searchManager.join();
 		} catch (InterruptedException e1) {
@@ -127,7 +104,7 @@ public class Operator {
 				.map(order -> new BundledOrder(order, searchResults, hapShare)).collect(Collectors.toList());
 
 		try {
-			ExcelLink.export(excelDest, bundledOrders, requests);
+			ExcelLink.export(excelDest, bundledOrders, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
