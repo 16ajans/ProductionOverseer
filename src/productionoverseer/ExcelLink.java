@@ -9,6 +9,9 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -30,8 +33,10 @@ public class ExcelLink {
 
 		XSSFWorkbook wb = new XSSFWorkbook();
 
-		if (bundledOrders != null) buildHASPSheet(wb, bundledOrders);
-		if (requests != null) buildHAPSheet(wb, requests);
+		if (bundledOrders != null)
+			buildHASPSheet(wb, bundledOrders);
+		if (requests != null)
+			buildHAPSheet(wb, requests);
 
 		FileOutputStream out = new FileOutputStream(path);
 
@@ -57,9 +62,17 @@ public class ExcelLink {
 	private static Sheet buildHASPSheet(XSSFWorkbook wb, List<BundledOrder> bundledOrders) {
 		Sheet sh = wb.createSheet("HO Records");
 		ExcelLink.insertHeaders(sh, haspHeaders);
-
+		
+		CellStyle error = wb.createCellStyle();
+		error.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		error.setFillForegroundColor(IndexedColors.RED.getIndex());
+		Font font = wb.createFont();
+		font.setColor(IndexedColors.WHITE.getIndex());
+		error.setFont(font);
+		
 		DataFormat format = wb.createDataFormat();
-		CellStyle style;
+		CellStyle dateTime = wb.createCellStyle();
+		dateTime.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
 
 		int i = 1;
 		for (BundledOrder bundle : bundledOrders) {
@@ -68,40 +81,36 @@ public class ExcelLink {
 
 			Row row = sh.createRow(i);
 
-			List<String> orderData = order.listAttrs();
-			List<LocalDateTime> orderDates = order.listDates();
+			createCell(row, 0, order.orderId);
+			createCell(row, 1, order.drawingNumber);
+			createCell(row, 2, order.sheetId);
+			makeCellNonNullable(createCell(row, 3, order.revision), error);
+			createCell(row, 4, order.disclosureValue);
+			createCell(row, 5, order.airplaneModel);
+			createCell(row, 6, order.suppCode);
+			createCell(row, 7, order.suppName);
+			createCell(row, 8, order.custBemsid);
+			createCell(row, 9, order.custName);
+			createCell(row, 10, order.deliverTo);
+			createCell(row, 11, order.buLocDept);
+			createCell(row, 12, order.ordDeskUser);
+			createCell(row, 13, order.ordDeskUserName);
+			createCell(row, 14, order.siteRequesting);
+			createCell(row, 15, order.sitePerformingLoc);
+			makeCellNonNullable(createCell(row, 16, order.otherSys), error);
+			createCell(row, 17, order.priority);
+			createCell(row, 18, order.media);
+			createCell(row, 19, order.convVendor);
+			createCell(row, 20, order.orderComments);
+			makeCellNonNullable(createCell(row, 21, order.order, dateTime), error);
+			makeCellNonNullable(createCell(row, 22, order.customerRequest, dateTime), error);
+			createCell(row, 23, order.orderDeskFtpHap, dateTime);
+			createCell(row, 24, order.cancelled, dateTime);
+			createCell(row, 25, order.vendorProcess, dateTime);
+			createCell(row, 26, order.hapPdtCompleted, dateTime);
 
-			int j = 0;
-
-			for (String data : orderData) {
-				Cell cell = row.createCell(j);
-				try {
-					cell.setCellValue(Integer.parseInt(data));
-				} catch (NumberFormatException e) {
-					cell.setCellValue(data);
-				}
-
-				j++;
-			}
-
-			style = wb.createCellStyle();
-			style.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
-			for (LocalDateTime date : orderDates) {
-				Cell cell = row.createCell(j);
-				cell.setCellValue(date);
-				cell.setCellStyle(style);
-
-				j++;
-			}
-
-			Cell orderReportCell = row.createCell(j++);
-			Cell drawingFileCell = row.createCell(j++);
-
-			style = wb.createCellStyle();
-			style.setWrapText(true);
-
-			orderReportCell.setCellStyle(style);
-			drawingFileCell.setCellStyle(style);
+			Cell orderReportCell = row.createCell(27);
+			Cell drawingFileCell = row.createCell(28);
 
 			List<String> orderReportFiles = bundle.getOrderReportFiles();
 			List<String> drawingFiles = bundle.getDrawingFiles();
@@ -173,4 +182,35 @@ public class ExcelLink {
 		return sh;
 	}
 
+	private static Cell createCell(Row row, int index, String data) {
+		Cell cell = row.createCell(index);
+		try {
+			cell.setCellValue(Integer.parseInt(data));
+		} catch (NumberFormatException e) {
+			cell.setCellValue(data);
+		}
+		return cell;
+	};
+
+	private static Cell createCell(Row row, int index, LocalDateTime data, CellStyle dateTime) {
+		Cell cell = row.createCell(index);
+		cell.setCellValue(data);
+		cell.setCellStyle(dateTime);
+		return cell;
+	};
+
+	private static Cell makeCellNonNullable(Cell cell, CellStyle error) {
+		switch (cell.getCellType()) {
+		case STRING:
+			if (cell.getStringCellValue().equals(""))
+				cell.setCellStyle(error);
+			break;
+		case NUMERIC:
+			if (cell.getNumericCellValue() == 0.0)
+				cell.setCellStyle(error);
+		default:
+			break;
+		}
+		return cell;
+	}
 }
