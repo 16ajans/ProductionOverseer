@@ -248,27 +248,29 @@ public class ExcelLink {
 	};
 
 	private static void chewFiles(HASPOrder order, List<String> files, Cell cell, CellStyle error) {
-		if (files.size() == 0) {
+		if (order.media.equals("S03") || order.media.equals("S05")) {
+			return;
+		} else if (files.size() == 0) {
 			applyStyle(cell, error);
 			return;
 		} else {
 			for (String file : files) {
 				file = file.toLowerCase();
-				
+
 				switch (order.sitePerformingLoc) {
 				case "SEATTLE":
 					if (file.startsWith("auburn\\")) {
-						file = file.substring(6);
+						file = file.substring(7);
 						break;
 					}
 				case "EVERETT":
 					if (file.startsWith("everett\\")) {
-						file = file.substring(7);
+						file = file.substring(8);
 						break;
 					}
-				case "ST_LOUIS":
+				case "ST LOUIS":
 					if (file.startsWith("st_louis\\")) {
-						file = file.substring(8);
+						file = file.substring(9);
 						break;
 					}
 				default:
@@ -276,30 +278,30 @@ public class ExcelLink {
 					return;
 				}
 
-				if ((file.startsWith("request\\") || file.startsWith("retained\\")) && (file.endsWith("txt") || file.endsWith("pdf"))) {
+				if ((file.startsWith("request\\") || file.startsWith("retained\\"))
+						&& (file.endsWith("txt") || file.endsWith("pdf"))) {
 					return;
-				} else if (file.startsWith("cgm\\") && file.endsWith("cgm")) {
-					file = file.substring(3);
-					String sheetId = order.sheetId.trim().replaceFirst("^0+(?!$)", "");
-					String combo = String.format("CD%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"));
-					
-					int start = file.indexOf(combo);
-					if (start > -1) {
-						file = file.substring(start);
-						System.out.println(file);
-						return;
-					}
-				} else if (file.startsWith("tiff\\") && file.endsWith("tif\\")) {
-					file = file.substring(4);
-					String combo = String.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue);
-					
-					int start = file.indexOf(combo);
-					if (start > -1) {
-						file = file.substring(start);
-						System.out.println(file);
-						return;
-					}
+				} else if ((file.startsWith("cgm\\") || file.startsWith("retained\\")) && file.endsWith("cgm")) {
+					return;
+//					String sheetId = order.sheetId.trim().replaceFirst("^0+(?!$)", "");
+//					String combo = String.format("CD%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"));
+//					
+//					int start = file.indexOf(combo);
+//					if (start > -1) {
+//						file = file.substring(start);
+//						return;
+//					}
+				} else if ((file.startsWith("tiff\\") || file.startsWith("retained\\")) && file.endsWith("tif")) {
+					return;
+//					String combo = String.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue);
+//					
+//					int start = file.indexOf(combo);
+//					if (start > -1) {
+//						file = file.substring(start);
+//						return;
+//					}
 				}
+				System.out.println(file);
 				applyStyle(cell, error);
 			}
 		}
