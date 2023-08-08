@@ -282,26 +282,27 @@ public class ExcelLink {
 						&& (file.endsWith("txt") || file.endsWith("pdf"))) {
 					return;
 				} else if ((file.startsWith("cgm\\") || file.startsWith("retained\\")) && file.endsWith("cgm")) {
-					return;
-//					String sheetId = order.sheetId.trim().replaceFirst("^0+(?!$)", "");
-//					String combo = String.format("CD%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"));
-//					
-//					int start = file.indexOf(combo);
-//					if (start > -1) {
-//						file = file.substring(start);
-//						return;
-//					}
+					String parts[] = file.split("\\\\");
+					file = parts[parts.length - 1];
+					String sheetId = order.sheetId.trim().replaceFirst("^0+(?!$)", "");
+					String combo = String.format("%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0")).toLowerCase();
+					
+					int start = file.indexOf(combo);
+					if (start > -1) {
+						file = file.substring(start);
+						return;
+					}
 				} else if ((file.startsWith("tiff\\") || file.startsWith("retained\\")) && file.endsWith("tif")) {
-					return;
-//					String combo = String.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue);
-//					
-//					int start = file.indexOf(combo);
-//					if (start > -1) {
-//						file = file.substring(start);
-//						return;
-//					}
+					String parts[] = file.split("\\\\");
+					file = parts[parts.length - 1];
+					String combo = String.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue).toLowerCase();
+					
+					int start = file.indexOf(combo);
+					if (start > -1) {
+						file = file.substring(start);
+						return;
+					}
 				}
-				System.out.println(file);
 				applyStyle(cell, error);
 			}
 		}
