@@ -38,6 +38,9 @@ public class Operator {
 			if (args[i].equals("--visible")) {
 				headless = false;
 			}
+			if (args[i].equals("--output")) {
+				outputDir = args[i + 1];
+			}
 		}
 
 		String excelDest = outputDir + dateFrom + "_THRU_" + (dateTo != null ? dateTo + "T" : "")
