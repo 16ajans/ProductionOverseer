@@ -186,6 +186,8 @@ public class ExcelLink {
 			List<String> reqData = request.listAttrs();
 			List<LocalDateTime> reqDates = request.listDates();
 			List<Boolean> reqBools = request.listBool();
+			
+			// TODO if cancelled, gray font for row
 
 			int j = 0;
 
@@ -290,6 +292,8 @@ public class ExcelLink {
 					int start = file.indexOf(combo);
 					if (start > -1) {
 						file = file.substring(start);
+						// TODO revision opportunistic match
+						// TODO date matching
 						return;
 					}
 				} else if ((file.startsWith("tiff\\") || file.startsWith("retained\\")) && file.endsWith("tif")) {
@@ -300,6 +304,8 @@ public class ExcelLink {
 					int start = file.indexOf(combo);
 					if (start > -1) {
 						file = file.substring(start);
+						// TODO revision opportunistic match
+						// TODO date matching
 						return;
 					}
 				}
