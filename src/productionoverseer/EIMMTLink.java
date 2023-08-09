@@ -23,10 +23,10 @@ public class EIMMTLink {
 	private WebDriver driver;
 	private HASPOrder lastOrder;
 	private boolean headless;
-	
+
 	List<HASPOrder> orders;
 	List<HAPRequest> requests;
-	
+
 	String ordDeskUser;
 	String dateFrom;
 	String dateTo;
@@ -34,12 +34,12 @@ public class EIMMTLink {
 	EIMMTLink(Boolean headless, String ordDeskUser, String dateFrom, String dateTo) {
 		this.headless = headless;
 		lastOrder = null;
-		
+
 		this.ordDeskUser = ordDeskUser;
 		this.dateFrom = dateFrom;
 		this.dateTo = dateTo;
 	}
-	
+
 	public void open() {
 		FirefoxOptions options = new FirefoxOptions();
 		if (headless)

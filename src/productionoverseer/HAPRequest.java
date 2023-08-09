@@ -18,11 +18,11 @@ public class HAPRequest {
 	String requestId;
 	String plotOperator;
 	String plotOperatorName; // TODO: how to get?
-	
+
 	String typeOfCheck;
 	String plotter;
 	String comments;
-	
+
 	LocalDateTime plot;
 
 	String inches;
@@ -45,7 +45,7 @@ public class HAPRequest {
 
 	public void hydrate(String requestData, String parent) {
 		this.parent = parent;
-		
+
 		Document requestDoc = Jsoup.parseBodyFragment(requestData);
 		Element sheetPlotAttrs = requestDoc.getElementById("sheetPlotAttrs");
 
@@ -73,13 +73,14 @@ public class HAPRequest {
 	}
 
 	public List<String> listAttrs() {
-		return Arrays.asList(parent, requestId, plotOperator, plotOperatorName, typeOfCheck, plotter, inches, gridLen, temp, hum, comments);
+		return Arrays.asList(parent, requestId, plotOperator, plotOperatorName, typeOfCheck, plotter, inches, gridLen,
+				temp, hum, comments);
 	}
-	
+
 	public List<LocalDateTime> listDates() {
 		return Arrays.asList(plot);
 	}
-	
+
 	public List<Boolean> listBool() {
 		return Arrays.asList(rejectRollValue, processWasteValue, lateValue, customerReworkValue, processReworkValue);
 	}

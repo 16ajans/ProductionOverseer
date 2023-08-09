@@ -186,7 +186,7 @@ public class ExcelLink {
 			List<String> reqData = request.listAttrs();
 			List<LocalDateTime> reqDates = request.listDates();
 			List<Boolean> reqBools = request.listBool();
-			
+
 			// TODO if cancelled, gray font for row
 
 			int j = 0;
@@ -296,8 +296,10 @@ public class ExcelLink {
 					String parts[] = file.split("\\\\");
 					file = parts[parts.length - 1];
 					String sheetId = order.sheetId.trim().replaceFirst("^0+(?!$)", "");
-					String combo = String.format("%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0")).toLowerCase();
-					
+					String combo = String
+							.format("%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"))
+							.toLowerCase();
+
 					int start = file.indexOf(combo);
 					if (start > -1) {
 						file = file.substring(start);
@@ -308,8 +310,10 @@ public class ExcelLink {
 				} else if ((file.startsWith("tiff\\") || file.startsWith("retained\\")) && file.endsWith("tif")) {
 					String parts[] = file.split("\\\\");
 					file = parts[parts.length - 1];
-					String combo = String.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue).toLowerCase();
-					
+					String combo = String
+							.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue)
+							.toLowerCase();
+
 					int start = file.indexOf(combo);
 					if (start > -1) {
 						file = file.substring(start);
