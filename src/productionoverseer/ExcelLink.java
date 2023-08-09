@@ -264,16 +264,25 @@ public class ExcelLink {
 					if (file.startsWith("auburn\\")) {
 						file = file.substring(7);
 						break;
+					} else {
+						applyStyle(cell, error);
+						return;
 					}
 				case "EVERETT":
 					if (file.startsWith("everett\\")) {
 						file = file.substring(8);
 						break;
+					} else {
+						applyStyle(cell, error);
+						return;
 					}
 				case "ST LOUIS":
 					if (file.startsWith("st_louis\\")) {
 						file = file.substring(9);
 						break;
+					} else {
+						applyStyle(cell, error);
+						return;
 					}
 				default:
 					applyStyle(cell, error);
