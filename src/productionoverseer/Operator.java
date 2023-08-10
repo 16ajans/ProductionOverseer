@@ -14,11 +14,11 @@ public class Operator {
 
 	public static void main(String... args) {
 
-		LocalDate today = LocalDate.now();
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMddyyyy");
 		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmm");
+		String today = dateFormatter.format(LocalDate.now());
 
-		String dateFrom = dateFormatter.format(today);
+		String dateFrom = today;
 		String dateTo = null;
 		String ordDeskUser = null;
 		Boolean headless = true;
@@ -43,8 +43,8 @@ public class Operator {
 			}
 		}
 
-		String excelDest = outputDir + dateFrom + "_THRU_"
-				+ (dateTo != null ? dateTo : dateFormatter.format(today))
+		String excelDest = outputDir + dateFrom
+				+ (dateFrom.equals(today) ? "" : "_THRU_" + (dateTo != null ? dateTo : today))
 				+ (ordDeskUser != null ? "_FOR_" + ordDeskUser : "") + ".xlsx";
 		String hapShare = "//Mw/wch-mil/PEDS_HAP_SHARE/";
 
