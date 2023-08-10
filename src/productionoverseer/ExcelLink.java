@@ -173,11 +173,15 @@ public class ExcelLink {
 			i++;
 		}
 		System.out.println("Created " + (i - 1) + " rows.");
+		
+		Row row = sh.createRow(i + 1);
+		createCell(row, 0, "Retrieved:");
+		createCell(row, 1, LocalDateTime.now(), dateTime);
 
 		for (int k = 0; k < haspHeaders.size(); k++) {
 			sh.autoSizeColumn(k);
 		}
-
+		
 		return sh;
 	}
 
