@@ -156,7 +156,7 @@ public class ExcelLink {
 					if (order.priority.equals("Standard"))
 						applyStyle(priority, error);
 					SLA = 1;
-				} else if (order.priority.equals("Expedite"))
+				} else if (order.priority.equals("Expedite") || order.media.equals("S03"))
 					SLA = 2;
 
 				if (order.customerRequest == null)
