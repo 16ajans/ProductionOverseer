@@ -3,7 +3,6 @@ package productionoverseer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +14,6 @@ public class Operator {
 	public static void main(String... args) {
 
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMddyyyy");
-		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmm");
 		String today = dateFormatter.format(LocalDate.now());
 
 		String dateFrom = today;
@@ -23,7 +21,7 @@ public class Operator {
 		String ordDeskUser = null;
 		Boolean headless = true;
 
-		String outputDir = "C:/temp/";
+		String outputDir = "C:/temp";
 
 		for (int i = 0; i < args.length; i += 2) {
 			if (args[i].equals("--bems")) {
@@ -43,7 +41,7 @@ public class Operator {
 			}
 		}
 
-		String excelDest = outputDir + dateFrom
+		String excelDest = outputDir + "/" + dateFrom
 				+ (dateFrom.equals(today) ? "" : "_THRU_" + (dateTo != null ? dateTo : today))
 				+ (ordDeskUser != null ? "_FOR_" + ordDeskUser : "") + ".xlsx";
 		String hapShare = "//Mw/wch-mil/PEDS_HAP_SHARE/";
