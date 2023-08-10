@@ -2,7 +2,10 @@ package productionoverseer;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,7 +82,7 @@ public class ExcelLink {
 		dateTimeError.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		dateTimeError.setFillForegroundColor(IndexedColors.RED.getIndex());
 		dateTimeError.setFont(white);
-		
+
 		CellStyle cancelled = wb.createCellStyle();
 		Font grey = wb.createFont();
 		grey.setColor(IndexedColors.GREY_50_PERCENT.getIndex());
@@ -87,7 +90,7 @@ public class ExcelLink {
 
 		int i = 1;
 		for (BundledOrder bundle : bundledOrders) {
-			
+
 			HASPOrder order = bundle.getOrder();
 
 			Row row = sh.createRow(i);
@@ -158,7 +161,7 @@ public class ExcelLink {
 
 				if (order.customerRequest == null)
 					applyStyle(customerRequest, dateTimeError);
-				else if (!order.customerRequest.toLocalDate().equals(order.order.toLocalDate().plusDays(SLA)))
+				else if (!(calcWeekDaysBetween(order.order.toLocalDate(), order.customerRequest.toLocalDate()) == SLA))
 					applyStyle(customerRequest, dateTimeError);
 
 				chewFiles(order, orderReportFiles, orderReports, error);
@@ -173,7 +176,7 @@ public class ExcelLink {
 			i++;
 		}
 		System.out.println("Created " + (i - 1) + " rows.");
-		
+
 		Row row = sh.createRow(i + 1);
 		createCell(row, 0, "Retrieved:");
 		createCell(row, 1, LocalDateTime.now(), dateTime);
@@ -181,7 +184,7 @@ public class ExcelLink {
 		for (int k = 0; k < haspHeaders.size(); k++) {
 			sh.autoSizeColumn(k);
 		}
-		
+
 		return sh;
 	}
 
@@ -336,5 +339,16 @@ public class ExcelLink {
 				applyStyle(cell, error);
 			}
 		}
+	}
+
+	public static long calcWeekDaysBetween(final LocalDate start, final LocalDate end) {
+		final DayOfWeek startW = start.getDayOfWeek();
+		final DayOfWeek endW = end.getDayOfWeek();
+
+		final long days = ChronoUnit.DAYS.between(start, end);
+		final long daysWithoutWeekends = days - 2 * ((days + startW.getValue()) / 7);
+
+		// adjust for starting and ending on a Sunday:
+		return daysWithoutWeekends + (startW == DayOfWeek.SUNDAY ? 1 : 0) + (endW == DayOfWeek.SUNDAY ? 1 : 0);
 	}
 }
