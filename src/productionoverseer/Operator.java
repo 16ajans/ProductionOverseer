@@ -14,7 +14,7 @@ import productionoverseer.EIMMTLink.FoundDuplicateOrderException;
 
 public class Operator {
 
-	public static void main(String... args) {
+	public static void main(String... args) throws InterruptedException {
 
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMddyyyy");
 		String today = dateFormatter.format(LocalDate.now());
@@ -23,10 +23,11 @@ public class Operator {
 		String dateTo = null;
 		String ordDeskUser = null;
 		Boolean headless = true;
+		Boolean retain = false;
 
 		String outputDir = "C:/temp";
 
-		for (int i = 0; i < args.length; i += 2) {
+		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("--bems")) {
 				ordDeskUser = args[i + 1];
 			}
@@ -38,6 +39,9 @@ public class Operator {
 			}
 			if (args[i].equals("--visible")) {
 				headless = false;
+			}
+			if (args[i].equals("--retain")) {
+				retain = true;
 			}
 			if (args[i].equals("--output")) {
 				outputDir = args[i + 1];
@@ -119,6 +123,16 @@ public class Operator {
 			System.out.println("Opening report . . .");
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+		
+		if (!retain) {
+			Thread.sleep(10000);
+			System.out.println("Waiting for Excel to close . . .");
+			while (!excelDest.canWrite()) {
+				Thread.sleep(5000);
+			}
+			
+			excelDest.delete();	
 		}
 
 	}
