@@ -66,9 +66,9 @@ public class ExcelLink {
 		CellStyle error = wb.createCellStyle();
 		error.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		error.setFillForegroundColor(IndexedColors.RED.getIndex());
-		Font font = wb.createFont();
-		font.setColor(IndexedColors.WHITE.getIndex());
-		error.setFont(font);
+		Font white = wb.createFont();
+		white.setColor(IndexedColors.WHITE.getIndex());
+		error.setFont(white);
 
 		DataFormat format = wb.createDataFormat();
 		CellStyle dateTime = wb.createCellStyle();
@@ -78,11 +78,16 @@ public class ExcelLink {
 		dateTimeError.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
 		dateTimeError.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		dateTimeError.setFillForegroundColor(IndexedColors.RED.getIndex());
-		dateTimeError.setFont(font);
+		dateTimeError.setFont(white);
+		
+		CellStyle cancelled = wb.createCellStyle();
+		Font grey = wb.createFont();
+		grey.setColor(IndexedColors.GREY_50_PERCENT.getIndex());
+		cancelled.setFont(grey);
 
 		int i = 1;
 		for (BundledOrder bundle : bundledOrders) {
-
+			
 			HASPOrder order = bundle.getOrder();
 
 			Row row = sh.createRow(i);
@@ -159,6 +164,10 @@ public class ExcelLink {
 				chewFiles(order, orderReportFiles, orderReports, error);
 				chewFiles(order, drawingFiles, drawings, error);
 
+			} else {
+				for (Cell cell : row) {
+					applyStyle(cell, cancelled);
+				}
 			}
 
 			i++;
@@ -186,8 +195,6 @@ public class ExcelLink {
 			List<String> reqData = request.listAttrs();
 			List<LocalDateTime> reqDates = request.listDates();
 			List<Boolean> reqBools = request.listBool();
-
-			// TODO if cancelled, gray font for row
 
 			int j = 0;
 
