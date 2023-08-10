@@ -43,7 +43,7 @@ public class Operator {
 			}
 		}
 
-		String excelDest = outputDir + dateFrom + "_THRU_" + (dateTo != null ? dateTo + "T" : "")
+		String excelDest = outputDir + dateFrom + "_THRU_" + (dateTo != null ? dateTo + "T" : dateFormatter.format(today) + "T")
 				+ timeFormatter.format(LocalDateTime.now()) + (ordDeskUser != null ? "_FOR_" + ordDeskUser : "")
 				+ ".xlsx";
 		String hapShare = "//Mw/wch-mil/PEDS_HAP_SHARE/";
