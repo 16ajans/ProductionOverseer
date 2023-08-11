@@ -28,13 +28,14 @@ public class Operator {
 		String outputDir = "C:/temp";
 
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("--bems")) {
+			args[i] = args[i].toLowerCase();
+			if (args[i].equals("--bems") || args[i].equals("--for")) {
 				ordDeskUser = args[i + 1];
 			}
 			if (args[i].equals("--from")) {
 				dateFrom = args[i + 1];
 			}
-			if (args[i].equals("--to")) {
+			if (args[i].equals("--to") || args[i].equals("--thru")) {
 				dateTo = args[i + 1];
 			}
 			if (args[i].equals("--visible")) {
