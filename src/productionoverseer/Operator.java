@@ -128,11 +128,10 @@ public class Operator {
 		if (!retain) {
 			Thread.sleep(10000);
 			System.out.println("Waiting for Excel to close . . .");
-			while (!excelDest.canWrite()) {
-				Thread.sleep(5000);
-			}
-			
-			excelDest.delete();	
+			Boolean deleted = false;
+			do {
+				deleted = excelDest.delete();
+			} while (!deleted);
 		}
 
 	}
