@@ -130,6 +130,7 @@ public class Operator {
 			System.out.println("Waiting for Excel to close . . .");
 			Boolean deleted = false;
 			do {
+				Thread.sleep(5000);
 				deleted = excelDest.delete();
 			} while (!deleted);
 			System.out.println("Removed file.");
