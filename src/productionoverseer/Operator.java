@@ -132,6 +132,7 @@ public class Operator {
 			do {
 				deleted = excelDest.delete();
 			} while (!deleted);
+			System.out.println("Removed file.");
 		}
 
 	}
