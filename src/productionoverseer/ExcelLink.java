@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +31,7 @@ public class ExcelLink {
 	public static List<String> hapHeaders = Arrays.asList("parent", "requestId", "plotOperator", "plotOperatorName",
 			"typeOfCheck", "plotter", "inches", "gridLen", "temp", "hum", "comments", "plot", "rejectRollValue",
 			"processWasteValue", "lateValue", "customerReworkValue", "processReworkValue");
+	public static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMddyyyy");
 
 	public static void export(String path, List<BundledOrder> bundledOrders, List<HAPRequest> requests)
 			throws IOException {
@@ -316,10 +318,10 @@ public class ExcelLink {
 
 					int start = file.indexOf(combo);
 					if (start > -1) {
-						file = file.substring(start);
+						file = file.substring(start, file.lastIndexOf("."));
 						// TODO revision opportunistic match
-						// TODO date matching
-						return;
+						if(file.endsWith(dateFormatter.format(order.customerRequest)))
+							return;
 					}
 				} else if ((file.startsWith("tiff\\") || file.startsWith("retained\\")) && file.endsWith("tif")) {
 					String parts[] = file.split("\\\\");
@@ -330,10 +332,10 @@ public class ExcelLink {
 
 					int start = file.indexOf(combo);
 					if (start > -1) {
-						file = file.substring(start);
+						file = file.substring(start, file.lastIndexOf("."));
 						// TODO revision opportunistic match
-						// TODO date matching
-						return;
+						if(file.endsWith(dateFormatter.format(order.customerRequest)))
+								return;
 					}
 				}
 				applyStyle(cell, error);
