@@ -309,33 +309,42 @@ public class ExcelLink {
 						&& (file.endsWith("txt") || file.endsWith("pdf"))) {
 					return;
 				} else if ((file.startsWith("cgm\\") || file.startsWith("retained\\")) && file.endsWith("cgm")) {
-					String parts[] = file.split("\\\\");
-					file = parts[parts.length - 1];
-					String sheetId = order.sheetId.trim().replaceFirst("^0+(?!$)", "");
-					String combo = String
-							.format("%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"))
-							.toLowerCase();
-
-					int start = file.indexOf(combo);
+					String match = null;
+					if (order.sheetId.trim().endsWith("0") && order.revision.contains("-")) {
+						match = order.drawingNumber.toLowerCase();
+					} else {
+						String parts[] = file.split("\\\\");
+						file = parts[parts.length - 1];
+						String sheetId = order.sheetId.trim().replaceFirst("^0+(?!$)", "");
+						match = String
+								.format("%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"))
+								.toLowerCase();
+					}
+					
+					int start = file.indexOf(match);
 					if (start > -1) {
 						file = file.substring(start, file.lastIndexOf("."));
 						// TODO revision opportunistic match
-						if(file.endsWith(dateFormatter.format(order.customerRequest)))
+						if (file.endsWith(dateFormatter.format(order.customerRequest)))
 							return;
 					}
 				} else if ((file.startsWith("tiff\\") || file.startsWith("retained\\")) && file.endsWith("tif")) {
-					String parts[] = file.split("\\\\");
-					file = parts[parts.length - 1];
-					String combo = String
-							.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue)
-							.toLowerCase();
+					String match = null;
+					if (order.sheetId.trim().endsWith("0") && order.revision.contains("-")) {
+						match = order.drawingNumber.toLowerCase();
+					} else {
+						String parts[] = file.split("\\\\");
+						file = parts[parts.length - 1];
+						match = String
+								.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue)
+								.toLowerCase();
+					}
 
-					int start = file.indexOf(combo);
+					int start = file.indexOf(match);
 					if (start > -1) {
 						file = file.substring(start, file.lastIndexOf("."));
-						// TODO revision opportunistic match
-						if(file.endsWith(dateFormatter.format(order.customerRequest)))
-								return;
+						if (file.endsWith(dateFormatter.format(order.customerRequest)))
+							return;
 					}
 				}
 				applyStyle(cell, error);
