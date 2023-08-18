@@ -266,7 +266,7 @@ public class ExcelLink {
 	};
 
 	private static void chewFiles(HASPOrder order, List<String> files, Cell cell, CellStyle error) {
-		if (order.media.equals("S03") || order.media.equals("S05")) {
+		if (!order.convVendor.equals("")) {
 			return;
 		} else if (files.size() == 0) {
 			applyStyle(cell, error);
