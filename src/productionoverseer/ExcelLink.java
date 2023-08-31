@@ -157,7 +157,7 @@ public class ExcelLink {
 				if (order.convVendor.equals("")) {
 					if (order.orderDeskFtpHap == null) {
 						applyStyle(orderDeskFtpHap, dateTimeError);
-						errorMsg += "Missing Order Desk FTP HAP Date Time.";
+						errorMsg += "Missing Order Desk FTP HAP Date Time. ";
 					} else if (!order.orderDeskFtpHap.toLocalDate().equals(order.order.toLocalDate())) {
 						applyStyle(orderDeskFtpHap, dateTimeError);
 						errorMsg += "Order Desk FTP HAP Date doesn't match Order Date.";
@@ -187,7 +187,7 @@ public class ExcelLink {
 				} else if (!(calcWeekDaysBetween(order.order.toLocalDate(),
 						order.customerRequest.toLocalDate()) == SLA)) {
 					applyStyle(customerRequest, dateTimeError);
-					errorMsg += "Expected " + SLA + " days between Order Date and Customer Required Date. (Got "
+					errorMsg += "Expected " + SLA + " weekdays between Order Date and Customer Required Date (Got "
 							+ calcWeekDaysBetween(order.order.toLocalDate(), order.customerRequest.toLocalDate())
 							+ " days). ";
 				}
@@ -336,16 +336,29 @@ public class ExcelLink {
 					}
 				default:
 					applyStyle(cell, error);
-					return  "Found files outside of regular HAP folders. ";
+					return "Found files outside of regular HAP folders. ";
 				}
 
-				if ((file.startsWith("request\\") || file.startsWith("retained\\"))
-						&& (file.endsWith("txt") || file.endsWith("pdf"))) {
-					return "";
-				} else if ((file.startsWith("cgm\\") || file.startsWith("retained\\")) && file.endsWith("cgm")) {
+				if ((file.endsWith("txt") || file.endsWith("pdf"))) {
+					if (file.startsWith("request\\") || file.startsWith("retained\\")) {
+						return "";
+					} else {
+						applyStyle(cell, error);
+						return "Found Order Report file outside of Request/Retained. ";
+					}
+				} else if (file.endsWith("cgm")) {
+					if (file.startsWith("cgm\\") || file.startsWith("retained\\")) {
+						
+					} else {
+						applyStyle(cell, error);
+						return "Found CGM file outside of CGM/Retained. ";
+					}
+					
+					String msg;
 					String match = null;
 					if (order.sheetId.trim().endsWith("0") && order.revision.contains("-")) {
 						match = order.drawingNumber.toLowerCase();
+						msg = "D&D: DWG ";
 					} else {
 						String parts[] = file.split("\\\\");
 						file = parts[parts.length - 1];
@@ -353,32 +366,57 @@ public class ExcelLink {
 						match = String
 								.format("%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"))
 								.toLowerCase();
+						msg = "DWG or SHT ";
 					}
 
 					int start = file.indexOf(match);
 					if (start > -1) {
 						file = file.substring(start, file.lastIndexOf("."));
 						// TODO revision opportunistic match
-						if (file.endsWith(dateFormatter.format(order.customerRequest)))
+						if (file.endsWith(dateFormatter.format(order.customerRequest))) {
 							return "";
+						} else {
+							applyStyle(cell, error);
+							return "Customer Request Date not matching found CGM filename. ";
+						}
+					} else {
+						applyStyle(cell, error);
+						return msg + "not matching found CGM filename. ";
 					}
-				} else if ((file.startsWith("tiff\\") || file.startsWith("retained\\")) && file.endsWith("tif")) {
+				} else if (file.endsWith("tif")) {
+					if (file.startsWith("tiff\\") || file.startsWith("retained\\")) {
+						
+					} else {
+						applyStyle(cell, error);
+						return "Found TIF file outside of TIFF/Retained. ";
+					}
+					
+					String msg;
 					String match = null;
 					if (order.sheetId.trim().endsWith("0") && order.revision.contains("-")) {
 						match = order.drawingNumber.toLowerCase();
+						msg = "D&D: DWG ";
 					} else {
 						String parts[] = file.split("\\\\");
 						file = parts[parts.length - 1];
 						match = String
 								.join("_", order.drawingNumber, order.sheetId, order.revision, order.disclosureValue)
 								.toLowerCase();
+						msg = "DWG, SHT, or REV ";
 					}
 
 					int start = file.indexOf(match);
 					if (start > -1) {
 						file = file.substring(start, file.lastIndexOf("."));
-						if (file.endsWith(dateFormatter.format(order.customerRequest)))
+						if (file.endsWith(dateFormatter.format(order.customerRequest))) {
 							return "";
+						} else {
+							applyStyle(cell, error);
+							return "Customer Request Date not matching found TIF filename. ";
+						}
+					} else {
+						applyStyle(cell, error);
+						return msg + "not matching found CGM filename. ";
 					}
 				}
 				applyStyle(cell, error);
