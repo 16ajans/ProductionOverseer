@@ -218,6 +218,8 @@ public class ExcelLink {
 		for (int k = 0; k < haspHeaders.size(); k++) {
 			sh.autoSizeColumn(k);
 		}
+		
+		sh.createFreezePane(0, 1);
 
 		return sh;
 	}
