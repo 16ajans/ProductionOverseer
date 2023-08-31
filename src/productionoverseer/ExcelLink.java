@@ -67,17 +67,22 @@ public class ExcelLink {
 	private static Sheet buildHASPSheet(XSSFWorkbook wb, List<BundledOrder> bundledOrders) {
 		Sheet sh = wb.createSheet("HO Records");
 		ExcelLink.insertHeaders(sh, haspHeaders);
+		
+		Font grey = wb.createFont();
+		grey.setColor(IndexedColors.GREY_50_PERCENT.getIndex());
+		
+		Font white = wb.createFont();
+		white.setColor(IndexedColors.WHITE.getIndex());
+		
+		DataFormat format = wb.createDataFormat();
+		
+		CellStyle dateTime = wb.createCellStyle();
+		dateTime.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
 
 		CellStyle error = wb.createCellStyle();
 		error.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		error.setFillForegroundColor(IndexedColors.RED.getIndex());
-		Font white = wb.createFont();
-		white.setColor(IndexedColors.WHITE.getIndex());
 		error.setFont(white);
-
-		DataFormat format = wb.createDataFormat();
-		CellStyle dateTime = wb.createCellStyle();
-		dateTime.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
 
 		CellStyle dateTimeError = wb.createCellStyle();
 		dateTimeError.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
@@ -86,9 +91,11 @@ public class ExcelLink {
 		dateTimeError.setFont(white);
 
 		CellStyle cancelled = wb.createCellStyle();
-		Font grey = wb.createFont();
-		grey.setColor(IndexedColors.GREY_50_PERCENT.getIndex());
 		cancelled.setFont(grey);
+		
+		CellStyle dateTimeCancelled = wb.createCellStyle();
+		dateTimeCancelled.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
+		dateTimeCancelled.setFont(grey);
 
 		int i = 1;
 		for (BundledOrder bundle : bundledOrders) {
@@ -171,7 +178,11 @@ public class ExcelLink {
 
 			} else {
 				for (Cell cell : row) {
-					applyStyle(cell, cancelled);
+					if (cell.getColumnIndex() > 20 && cell.getColumnIndex() < 27)
+						applyStyle(cell, dateTimeCancelled);
+					else {
+						applyStyle(cell, cancelled);
+					}
 				}
 			}
 
