@@ -22,12 +22,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelLink {
 
-	public static List<String> haspHeaders = Arrays.asList("Order ID", "DWG", "SHT", "REV",
-			"Disclosure", "Model", "Ext Supp Code", "Supplier", "Cust BEMSID", "Cust Name", "Deliver to",
-			"BU-LOC-DEPT", "Order Desk BEMSID", "Order Desk User", "Site Requesting", "Site Performing", "Other Sys",
-			"Priority", "Media", "Conv Vendor", "Comments", "Order Date Time", "Customer Request Date Time",
-			"Order Desk FTP HAP Date Time", "Cancelled Date Time", "Vendor Process Date Time", "HAP PDT Completed Date Time",
-			"Order Report Files", "Drawing Files", "Error");
+	public static List<String> haspHeaders = Arrays.asList("Order ID", "DWG", "SHT", "REV", "Disclosure", "Model",
+			"Ext Supp Code", "Supplier", "Cust BEMSID", "Cust Name", "Deliver to", "BU-LOC-DEPT", "Order Desk BEMSID",
+			"Order Desk User", "Site Requesting", "Site Performing", "Other Sys", "Priority", "Media", "Conv Vendor",
+			"Comments", "Order Date Time", "Customer Request Date Time", "Order Desk FTP HAP Date Time",
+			"Cancelled Date Time", "Vendor Process Date Time", "HAP PDT Completed Date Time", "Order Report Files",
+			"Drawing Files", "Error");
 	public static List<String> hapHeaders = Arrays.asList("parent", "requestId", "plotOperator", "plotOperatorName",
 			"typeOfCheck", "plotter", "inches", "gridLen", "temp", "hum", "comments", "plot", "rejectRollValue",
 			"processWasteValue", "lateValue", "customerReworkValue", "processReworkValue");
@@ -194,7 +194,7 @@ public class ExcelLink {
 
 				errorMsg += chewFiles(order, orderReportFiles, orderReports, error);
 				errorMsg += chewFiles(order, drawingFiles, drawings, error);
-				
+
 				createCell(row, 29, errorMsg);
 
 			} else {
@@ -218,7 +218,7 @@ public class ExcelLink {
 		for (int k = 0; k < haspHeaders.size(); k++) {
 			sh.autoSizeColumn(k);
 		}
-		
+
 		sh.createFreezePane(0, 1);
 
 		return sh;
@@ -348,12 +348,12 @@ public class ExcelLink {
 					}
 				} else if (file.endsWith("cgm")) {
 					if (file.startsWith("cgm\\") || file.startsWith("retained\\")) {
-						
+
 					} else {
 						applyStyle(cell, error);
 						return "Found CGM file outside of CGM/Retained. ";
 					}
-					
+
 					String msg;
 					String match = null;
 					if (order.sheetId.trim().endsWith("0") && order.revision.contains("-")) {
@@ -385,12 +385,12 @@ public class ExcelLink {
 					}
 				} else if (file.endsWith("tif")) {
 					if (file.startsWith("tiff\\") || file.startsWith("retained\\")) {
-						
+
 					} else {
 						applyStyle(cell, error);
 						return "Found TIF file outside of TIFF/Retained. ";
 					}
-					
+
 					String msg;
 					String match = null;
 					if (order.sheetId.trim().endsWith("0") && order.revision.contains("-")) {
