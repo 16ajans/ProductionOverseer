@@ -27,7 +27,7 @@ public class ExcelLink {
 			"buLocDept", "ordDeskUser", "ordDeskUserName", "siteRequesting", "sitePerformingLoc", "otherSys",
 			"priority", "media", "convVendor", "orderComments", "orderDateTime", "customerRequestDateTime",
 			"orderDeskFtpHapDateTime", "cancelledDateTime", "vendorProcessDateTime", "hapPdtCompletedDateTime",
-			"orderReportFiles", "drawingFiles");
+			"orderReportFiles", "drawingFiles", "errorMsg");
 	public static List<String> hapHeaders = Arrays.asList("parent", "requestId", "plotOperator", "plotOperatorName",
 			"typeOfCheck", "plotter", "inches", "gridLen", "temp", "hum", "comments", "plot", "rejectRollValue",
 			"processWasteValue", "lateValue", "customerReworkValue", "processReworkValue");
@@ -67,15 +67,15 @@ public class ExcelLink {
 	private static Sheet buildHASPSheet(XSSFWorkbook wb, List<BundledOrder> bundledOrders) {
 		Sheet sh = wb.createSheet("HO Records");
 		ExcelLink.insertHeaders(sh, haspHeaders);
-		
+
 		Font grey = wb.createFont();
 		grey.setColor(IndexedColors.GREY_50_PERCENT.getIndex());
-		
+
 		Font white = wb.createFont();
 		white.setColor(IndexedColors.WHITE.getIndex());
-		
+
 		DataFormat format = wb.createDataFormat();
-		
+
 		CellStyle dateTime = wb.createCellStyle();
 		dateTime.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
 
@@ -92,7 +92,7 @@ public class ExcelLink {
 
 		CellStyle cancelled = wb.createCellStyle();
 		cancelled.setFont(grey);
-		
+
 		CellStyle dateTimeCancelled = wb.createCellStyle();
 		dateTimeCancelled.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
 		dateTimeCancelled.setFont(grey);
@@ -141,40 +141,61 @@ public class ExcelLink {
 			orderReports.setCellValue(String.join(", ", orderReportFiles));
 			drawings.setCellValue(String.join(", ", drawingFiles));
 
+			String errorMsg = "";
+
 			int SLA = 4;
 
 			if (order.cancelled == null) {
-				if (order.revision.equals(""))
+				if (order.revision.equals("")) {
 					applyStyle(revision, error);
-				if (order.otherSys.equals(""))
+					errorMsg += "Missing Revision. ";
+				}
+				if (order.otherSys.equals("")) {
 					applyStyle(otherSys, error);
-
+					errorMsg += "Missing Other Sys #. ";
+				}
 				if (order.convVendor.equals("")) {
-					if (order.orderDeskFtpHap == null)
+					if (order.orderDeskFtpHap == null) {
 						applyStyle(orderDeskFtpHap, dateTimeError);
-					else if (!order.orderDeskFtpHap.toLocalDate().equals(order.order.toLocalDate()))
+						errorMsg += "Missing Order Desk FTP HAP Date Time.";
+					} else if (!order.orderDeskFtpHap.toLocalDate().equals(order.order.toLocalDate())) {
 						applyStyle(orderDeskFtpHap, dateTimeError);
+						errorMsg += "Order Desk FTP HAP Date doesn't match Order Date.";
+					}
 				} else {
-					if (order.vendorProcess == null)
+					if (order.vendorProcess == null) {
 						applyStyle(vendorProcess, dateTimeError);
-					else if (!order.vendorProcess.toLocalDate().equals(order.order.toLocalDate()))
+						errorMsg += "Missing Vault Vendor Received Date Time. ";
+					} else if (!order.vendorProcess.toLocalDate().equals(order.order.toLocalDate())) {
 						applyStyle(vendorProcess, dateTimeError);
+						errorMsg += "Vault Vendor Received Date doesn't match Order Date. ";
+					}
 				}
 
 				if (order.suppCode.toLowerCase().startsWith("z0") || order.priority.equals("AOG-AG/Emergent")) {
-					if (order.priority.equals("Standard"))
+					if (order.priority.equals("Standard")) {
 						applyStyle(priority, error);
+						errorMsg += "Expected Priority \"Expedite\" for CRIB order. ";
+					}
 					SLA = 1;
 				} else if (order.priority.equals("Expedite") || order.media.equals("S03"))
 					SLA = 2;
 
-				if (order.customerRequest == null)
+				if (order.customerRequest == null) {
 					applyStyle(customerRequest, dateTimeError);
-				else if (!(calcWeekDaysBetween(order.order.toLocalDate(), order.customerRequest.toLocalDate()) == SLA))
+					errorMsg += "Missing Customer Required Date Time. ";
+				} else if (!(calcWeekDaysBetween(order.order.toLocalDate(),
+						order.customerRequest.toLocalDate()) == SLA)) {
 					applyStyle(customerRequest, dateTimeError);
+					errorMsg += "Expected " + SLA + " days between Order Date and Customer Required Date. (Got "
+							+ calcWeekDaysBetween(order.order.toLocalDate(), order.customerRequest.toLocalDate())
+							+ " days). ";
+				}
 
-				chewFiles(order, orderReportFiles, orderReports, error);
-				chewFiles(order, drawingFiles, drawings, error);
+				errorMsg += chewFiles(order, orderReportFiles, orderReports, error);
+				errorMsg += chewFiles(order, drawingFiles, drawings, error);
+				
+				createCell(row, 29, errorMsg);
 
 			} else {
 				for (Cell cell : row) {
@@ -276,12 +297,12 @@ public class ExcelLink {
 		return cell;
 	};
 
-	private static void chewFiles(HASPOrder order, List<String> files, Cell cell, CellStyle error) {
+	private static String chewFiles(HASPOrder order, List<String> files, Cell cell, CellStyle error) {
 		if (!order.convVendor.equals("")) {
-			return;
+			return "";
 		} else if (files.size() == 0) {
 			applyStyle(cell, error);
-			return;
+			return "Found no files matching PlotID. ";
 		} else {
 			for (String file : files) {
 				file = file.toLowerCase();
@@ -293,7 +314,7 @@ public class ExcelLink {
 						break;
 					} else {
 						applyStyle(cell, error);
-						return;
+						return "Found files in wrong HAP folder. ";
 					}
 				case "EVERETT":
 					if (file.startsWith("everett\\")) {
@@ -301,7 +322,7 @@ public class ExcelLink {
 						break;
 					} else {
 						applyStyle(cell, error);
-						return;
+						return "Found files in wrong HAP folder. ";
 					}
 				case "ST LOUIS":
 					if (file.startsWith("st_louis\\")) {
@@ -309,16 +330,16 @@ public class ExcelLink {
 						break;
 					} else {
 						applyStyle(cell, error);
-						return;
+						return "Found files in wrong HAP folder. ";
 					}
 				default:
 					applyStyle(cell, error);
-					return;
+					return  "Found files outside of regular HAP folders. ";
 				}
 
 				if ((file.startsWith("request\\") || file.startsWith("retained\\"))
 						&& (file.endsWith("txt") || file.endsWith("pdf"))) {
-					return;
+					return "";
 				} else if ((file.startsWith("cgm\\") || file.startsWith("retained\\")) && file.endsWith("cgm")) {
 					String match = null;
 					if (order.sheetId.trim().endsWith("0") && order.revision.contains("-")) {
@@ -331,13 +352,13 @@ public class ExcelLink {
 								.format("%sS%s", order.drawingNumber, String.format("%2s", sheetId).replace(" ", "0"))
 								.toLowerCase();
 					}
-					
+
 					int start = file.indexOf(match);
 					if (start > -1) {
 						file = file.substring(start, file.lastIndexOf("."));
 						// TODO revision opportunistic match
 						if (file.endsWith(dateFormatter.format(order.customerRequest)))
-							return;
+							return "";
 					}
 				} else if ((file.startsWith("tiff\\") || file.startsWith("retained\\")) && file.endsWith("tif")) {
 					String match = null;
@@ -355,12 +376,14 @@ public class ExcelLink {
 					if (start > -1) {
 						file = file.substring(start, file.lastIndexOf("."));
 						if (file.endsWith(dateFormatter.format(order.customerRequest)))
-							return;
+							return "";
 					}
 				}
 				applyStyle(cell, error);
+				return "Found file error. ";
 			}
 		}
+		return "";
 	}
 
 	public static long calcWeekDaysBetween(final LocalDate start, final LocalDate end) {
