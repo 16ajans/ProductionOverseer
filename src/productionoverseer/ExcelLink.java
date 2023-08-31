@@ -22,12 +22,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelLink {
 
-	public static List<String> haspHeaders = Arrays.asList("orderId", "drawingNumber", "sheetId", "revision",
-			"disclosureValue", "airplaneModel", "suppCode", "suppName", "custBemsid", "custName", "deliverTo",
-			"buLocDept", "ordDeskUser", "ordDeskUserName", "siteRequesting", "sitePerformingLoc", "otherSys",
-			"priority", "media", "convVendor", "orderComments", "orderDateTime", "customerRequestDateTime",
-			"orderDeskFtpHapDateTime", "cancelledDateTime", "vendorProcessDateTime", "hapPdtCompletedDateTime",
-			"orderReportFiles", "drawingFiles", "errorMsg");
+	public static List<String> haspHeaders = Arrays.asList("Order ID", "DWG", "SHT", "REV",
+			"Disclosure", "Model", "Ext Supp Code", "Supplier", "Cust BEMSID", "Cust Name", "Deliver to",
+			"BU-LOC-DEPT", "Order Desk BEMSID", "Order Desk User", "Site Requesting", "Site Performing", "Other Sys",
+			"Priority", "Media", "Conv Vendor", "Comments", "Order Date Time", "Customer Request Date Time",
+			"Order Desk FTP HAP Date Time", "Cancelled Date Time", "Vendor Process Date Time", "HAP PDT Completed Date Time",
+			"Order Report Files", "Drawing Files", "Error");
 	public static List<String> hapHeaders = Arrays.asList("parent", "requestId", "plotOperator", "plotOperatorName",
 			"typeOfCheck", "plotter", "inches", "gridLen", "temp", "hum", "comments", "plot", "rejectRollValue",
 			"processWasteValue", "lateValue", "customerReworkValue", "processReworkValue");
