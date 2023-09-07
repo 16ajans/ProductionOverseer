@@ -416,7 +416,7 @@ public class ExcelLink {
 						}
 					} else {
 						applyStyle(cell, error);
-						return msg + "not matching found CGM filename. ";
+						return msg + "not matching found TIF filename. ";
 					}
 				}
 				applyStyle(cell, error);
