@@ -50,7 +50,7 @@ public class Operator {
 		}
 
 		File excelDest = getUniqueFileName(new File(outputDir + "/" + dateFrom
-				+ (dateFrom.equals(today) ? "" : "_THRU_" + (dateTo != null ? dateTo : today))
+				+ ((dateFrom.equals(dateTo) || dateFrom.equals(today)) ? "" : "_THRU_" + (dateTo != null ? dateTo : today))
 				+ (ordDeskUser != null ? "_FOR_" + ordDeskUser : "") + ".xlsx"));
 		String hapShare = "//Mw/wch-mil/PEDS_HAP_SHARE/";
 
