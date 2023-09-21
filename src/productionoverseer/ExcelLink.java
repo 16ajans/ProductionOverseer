@@ -40,8 +40,8 @@ public class ExcelLink {
 
 		if (bundledOrders != null)
 			buildHASPSheet(wb, bundledOrders);
-		if (requests != null)
-			buildHAPSheet(wb, requests);
+//		if (requests != null)
+//			buildHAPSheet(wb, requests);
 
 		FileOutputStream out = new FileOutputStream(path);
 
@@ -224,58 +224,58 @@ public class ExcelLink {
 		return sh;
 	}
 
-	private static Sheet buildHAPSheet(XSSFWorkbook wb, List<HAPRequest> requests) {
-		Sheet sh = wb.createSheet("HR Records");
-		ExcelLink.insertHeaders(sh, hapHeaders);
-
-		DataFormat format = wb.createDataFormat();
-		CellStyle style;
-
-		int i = 1;
-		for (HAPRequest request : requests) {
-			Row row = sh.createRow(i);
-
-			List<String> reqData = request.listAttrs();
-			List<LocalDateTime> reqDates = request.listDates();
-			List<Boolean> reqBools = request.listBool();
-
-			int j = 0;
-
-			for (String data : reqData) {
-				Cell cell = row.createCell(j);
-				try {
-					cell.setCellValue(Integer.parseInt(data));
-				} catch (NumberFormatException e) {
-					cell.setCellValue(data);
-				}
-
-				j++;
-			}
-
-			style = wb.createCellStyle();
-			style.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
-			for (LocalDateTime date : reqDates) {
-				Cell cell = row.createCell(j);
-				cell.setCellValue(date);
-				cell.setCellStyle(style);
-
-				j++;
-			}
-
-			for (Boolean bool : reqBools) {
-
-			}
-
-			i++;
-		}
-		System.out.println("Created " + (i - 1) + " rows.");
-
-		for (int k = 0; k < hapHeaders.size(); k++) {
-			sh.autoSizeColumn(k);
-		}
-
-		return sh;
-	}
+//	private static Sheet buildHAPSheet(XSSFWorkbook wb, List<HAPRequest> requests) {
+//		Sheet sh = wb.createSheet("HR Records");
+//		ExcelLink.insertHeaders(sh, hapHeaders);
+//
+//		DataFormat format = wb.createDataFormat();
+//		CellStyle style;
+//
+//		int i = 1;
+//		for (HAPRequest request : requests) {
+//			Row row = sh.createRow(i);
+//
+//			List<String> reqData = request.listAttrs();
+//			List<LocalDateTime> reqDates = request.listDates();
+//			List<Boolean> reqBools = request.listBool();
+//
+//			int j = 0;
+//
+//			for (String data : reqData) {
+//				Cell cell = row.createCell(j);
+//				try {
+//					cell.setCellValue(Integer.parseInt(data));
+//				} catch (NumberFormatException e) {
+//					cell.setCellValue(data);
+//				}
+//
+//				j++;
+//			}
+//
+//			style = wb.createCellStyle();
+//			style.setDataFormat(format.getFormat("mm/dd/yyyy hh:mm;@"));
+//			for (LocalDateTime date : reqDates) {
+//				Cell cell = row.createCell(j);
+//				cell.setCellValue(date);
+//				cell.setCellStyle(style);
+//
+//				j++;
+//			}
+//
+//			for (Boolean bool : reqBools) {
+//
+//			}
+//
+//			i++;
+//		}
+//		System.out.println("Created " + (i - 1) + " rows.");
+//
+//		for (int k = 0; k < hapHeaders.size(); k++) {
+//			sh.autoSizeColumn(k);
+//		}
+//
+//		return sh;
+//	}
 
 	private static Cell createCell(Row row, int index, String data) {
 		Cell cell = row.createCell(index);
